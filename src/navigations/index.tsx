@@ -1,27 +1,36 @@
 import * as React from 'react';
-import {Text, StyleSheet} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
+import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
+import {
+  NavigationContainer,
+  RouteProp,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
 
-import {EmptyScreen} from '../screens';
+import {EmptyScreen, HomeScreen, SmartScreen, SettingScreen} from '../screens';
+import {Colors} from '../config';
+import {Button} from '../components';
 
 type HomeStackParamList = {
   Home: undefined;
 };
 
-type CreatesStackParamList = {
-  Create: undefined;
+type SmartStackParamList = {
+  Smart: undefined;
 };
 
-type ShortsStackParamList = {
-  Short: undefined;
-};
+// type ShortsStackParamList = {
+//   Short: undefined;
+// };
 
-type ChanelsStackParamList = {
-  Chanel: undefined;
-};
+// type ChanelsStackParamList = {
+//   Chanel: undefined;
+// };
 
 type SettingsStackParamList = {
   Setting: undefined;
@@ -30,6 +39,13 @@ type SettingsStackParamList = {
 interface StackScreenOptions {
   title: string;
   headerShown?: boolean;
+  renderHeader?: ({
+    route,
+    navigation,
+  }: {
+    route: RouteProp<any>;
+    navigation: any;
+  }) => React.ComponentType<any> | React.ReactElement | null | undefined;
 }
 
 interface TabOptions {
@@ -44,27 +60,34 @@ interface TabOptions {
 }
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
-const CreatesStack = createNativeStackNavigator<CreatesStackParamList>();
-const ShortsStack = createNativeStackNavigator<ShortsStackParamList>();
-const ChanelsStack = createNativeStackNavigator<ChanelsStackParamList>();
+const CreatesStack = createNativeStackNavigator<SmartStackParamList>();
+// const ChanelsStack = createNativeStackNavigator<ChanelsStackParamList>();
 const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
 function HomeStackScreen() {
   return (
-    <HomeStack.Navigator screenOptions={StackScreenOptions({title: 'Home'})}>
-      <HomeStack.Screen name="Home" component={EmptyScreen} />
-    </HomeStack.Navigator>
-  );
-}
-
-function ShortsStackScreen() {
-  return (
-    <ShortsStack.Navigator
+    <HomeStack.Navigator
       screenOptions={StackScreenOptions({
-        title: 'Shorts',
+        title: 'Home',
+        renderHeader: ({route, navigation}) => (
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '95%',
+            }}>
+            <TouchableOpacity onPress={() => {}}>
+              <AntDesign name={'user'} color={'#212329'} size={24} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {}}>
+              <AntDesign name={'plus'} color={'#212329'} size={24} />
+            </TouchableOpacity>
+          </View>
+        ),
       })}>
-      <ShortsStack.Screen name="Short" component={EmptyScreen} />
-    </ShortsStack.Navigator>
+      <HomeStack.Screen name="Home" component={HomeScreen} />
+    </HomeStack.Navigator>
   );
 }
 
@@ -72,31 +95,75 @@ function CreatesStackScreen() {
   return (
     <CreatesStack.Navigator
       screenOptions={StackScreenOptions({
-        title: 'Creates',
+        title: 'Smarts',
+        renderHeader: ({route, navigation}) => (
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '95%',
+            }}>
+            <TouchableOpacity onPress={() => {}}>
+              <AntDesign name={'user'} color={'#212329'} size={24} />
+            </TouchableOpacity>
+            <Button
+              isShowText={false}
+              onPress={() => {}}
+              title={''}
+              Icon={<AntDesign name={'plus'} color={'#ffffff'} size={18} />}
+            />
+          </View>
+        ),
       })}>
-      <CreatesStack.Screen name="Create" component={EmptyScreen} />
+      <CreatesStack.Screen name="Smart" component={SmartScreen} />
     </CreatesStack.Navigator>
   );
 }
 
-function ChanelsStackScreen() {
-  return (
-    <ChanelsStack.Navigator
-      screenOptions={StackScreenOptions({
-        title: 'Chanels',
-      })}>
-      <ChanelsStack.Screen name="Chanel" component={EmptyScreen} />
-    </ChanelsStack.Navigator>
-  );
-}
+// function ChanelsStackScreen() {
+//   return (
+//     <ChanelsStack.Navigator
+//       screenOptions={StackScreenOptions({
+//         title: 'Chanels',
+//       })}>
+//       <ChanelsStack.Screen name="Chanel" component={EmptyScreen} />
+//     </ChanelsStack.Navigator>
+//   );
+// }
 
 function SettingsStackScreen() {
   return (
-    <SettingsStack.Navigator
-      screenOptions={StackScreenOptions({
-        title: 'Library',
-      })}>
-      <SettingsStack.Screen name="Setting" component={EmptyScreen} />
+    <SettingsStack.Navigator>
+      <SettingsStack.Screen
+        name="Setting"
+        component={SettingScreen}
+        options={StackScreenOptions({
+          title: 'Settings',
+          renderHeader: ({route, navigation}) => (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                width: '98%',
+              }}>
+              <TouchableOpacity
+                onPress={() => {}}
+                style={{marginHorizontal: 8}}>
+                <AntDesign name={'scan1'} color={'#212329'} size={24} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  console.log(navigation);
+                }}
+                style={{marginHorizontal: 8}}>
+                <AntDesign name={'setting'} color={'#212329'} size={24} />
+              </TouchableOpacity>
+            </View>
+          ),
+        })}
+      />
     </SettingsStack.Navigator>
   );
 }
@@ -117,24 +184,15 @@ export default function BottomTabs() {
           })}
         />
         <Tab.Screen
-          name="Shorts"
-          component={ShortsStackScreen}
-          options={TabOptions({
-            renderIcon: ({color, size}) => (
-              <AntDesign name={'disconnect'} color={color} size={size} />
-            ),
-          })}
-        />
-        <Tab.Screen
-          name="Creates"
+          name="Smarts"
           component={CreatesStackScreen}
           options={TabOptions({
             renderIcon: ({color, size}) => (
-              <AntDesign name={'pluscircleo'} color={color} size={size} />
+              <Feather name={'sun'} color={color} size={size} />
             ),
           })}
         />
-        <Tab.Screen
+        {/* <Tab.Screen
           name="Chanels"
           component={ChanelsStackScreen}
           options={TabOptions({
@@ -142,13 +200,13 @@ export default function BottomTabs() {
               <AntDesign name={'codesquareo'} color={color} size={size} />
             ),
           })}
-        />
+        /> */}
         <Tab.Screen
           name="Settings"
           component={SettingsStackScreen}
           options={TabOptions({
             renderIcon: ({color, size}) => (
-              <AntDesign name={'fastforward'} color={color} size={size} />
+              <EvilIcons name={'user'} color={color} size={size! + 6} />
             ),
           })}
         />
@@ -160,22 +218,36 @@ export default function BottomTabs() {
 const NavigationScreenOptions = {
   headerShown: false,
   tabBarStyle: {
-    backgroundColor: '#000000',
-    borderTopColor: '#000000',
+    backgroundColor: '#ffffff',
+    borderTopColor: '#ffffff',
   },
-  tabBarActiveTintColor: '#ffffff',
+  tabBarActiveTintColor: Colors.primary,
 };
 
 const StackScreenOptions = ({
   title,
   headerShown = true,
+  renderHeader,
 }: StackScreenOptions): {} => ({
-  headerTitle: () => <Text style={styles.headerTitle}>{title}</Text>,
-  headerTitleAlign: 'center',
-  headerStyle: {
-    backgroundColor: '#000000',
+  headerTitle: () => {
+    const route = useRoute();
+    const navigation = useNavigation();
+
+    return renderHeader
+      ? renderHeader({
+          route,
+          navigation,
+        })
+      : null;
   },
-  headerShown,
+  headerStyle: {
+    backgroundColor: Colors.BG,
+    borderBottomColor: '#ffffff',
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+
+  headerShown: renderHeader ? headerShown : !!renderHeader,
 });
 
 interface TabBarIcon {
@@ -191,7 +263,7 @@ const TabOptions = ({renderIcon, tabBarLabel = ''}: TabOptions): {} => ({
 
 const styles = StyleSheet.create({
   headerTitle: {
-    color: '#ffffff',
+    color: '#000000',
     fontWeight: '600',
     fontSize: 20,
   },
