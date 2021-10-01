@@ -1,30 +1,22 @@
-import React, {useState} from 'react';
-import {
-  StyleSheet,
-  View,
-  FlatList,
-  TouchableOpacity,
-  Animated,
-} from 'react-native';
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+
 import {DeviceScreens} from '..';
-import {
-  Button,
-  DeviceComponent,
-  ListDevice,
-  ScreenDefault,
-} from '../../components';
-import {ScanQrCode} from '../../components/QRCode';
-import {ElectricSvg, FanSVG, OutletIcon} from '../../components/Svgs';
+import {Button, ScreenDefault} from '../../components';
 import {Colors} from '../../config';
 
 export const HomeScreen = () => {
+  const navigation = useNavigation();
+
   const handleAddDevices = () => {
     //Navigation
+    navigation.navigate('AddDevice');
   };
 
   return (
     <View style={styles.container}>
-      {/* <ScreenDefault
+      <ScreenDefault
         titleScreen={'Không có thiết bị, vui lòng thêm'}
         onPress={handleAddDevices}
         ButtonComp={
@@ -34,9 +26,7 @@ export const HomeScreen = () => {
             isShowIcon={false}
           />
         }
-      /> */}
-      {/* <DeviceScreens /> */}
-      <ScanQrCode />
+      />
     </View>
   );
 };

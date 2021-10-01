@@ -6,6 +6,7 @@ import {
   Text,
   SectionListData,
 } from 'react-native';
+import {Colors} from '../../config';
 import {DeviceComponent} from '../DeviceComponent';
 import {ElectricSvg, FanSVG, LightBulb, OutletIcon} from '../Svgs';
 
@@ -95,6 +96,7 @@ export const ListDevice = ({}: ListDeviceDataProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.BG,
   },
   header: {
     paddingVertical: 8,

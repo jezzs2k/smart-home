@@ -1,17 +1,13 @@
 import React, {useState} from 'react';
-import {
-  StyleSheet,
-  View,
-  FlatList,
-  TouchableOpacity,
-  Animated,
-} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {StyleSheet, View, TouchableOpacity, Animated} from 'react-native';
 import {
   TabView,
   SceneMap,
   SceneRendererProps,
   NavigationState,
 } from 'react-native-tab-view';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 import {Colors} from '../../config';
 import {AddAutomatics} from './AddAutomatics';
@@ -23,6 +19,8 @@ interface RouteType {
 }
 
 export const DeviceScreens = () => {
+  const navigation = useNavigation();
+
   const [stateTab, useStateTab] = useState({
     index: 0,
     routes: [
@@ -37,6 +35,7 @@ export const DeviceScreens = () => {
     },
   ) => {
     const inputRange = props.navigationState.routes.map((x, i: number) => i);
+    const handleBack = () => navigation.goBack();
 
     return (
       <View style={styles.tabBar}>
@@ -49,11 +48,23 @@ export const DeviceScreens = () => {
           });
 
           return (
-            <TouchableOpacity
-              style={styles.tabItem}
-              onPress={() => useStateTab(state => ({...state, index: i}))}>
-              <Animated.Text style={{opacity}}>{route.title}</Animated.Text>
-            </TouchableOpacity>
+            <React.Fragment>
+              {i === 0 && (
+                <TouchableOpacity
+                  onPress={handleBack}
+                  style={{
+                    justifyContent: 'center',
+                    paddingHorizontal: 8,
+                  }}>
+                  <AntDesign name={'left'} color={'#000'} size={20} />
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={styles.tabItem}
+                onPress={() => useStateTab(state => ({...state, index: i}))}>
+                <Animated.Text style={{opacity}}>{route.title}</Animated.Text>
+              </TouchableOpacity>
+            </React.Fragment>
           );
         })}
       </View>
@@ -65,7 +76,7 @@ export const DeviceScreens = () => {
 
   const renderScene = SceneMap({
     first: () => <AddManually />,
-    second: () => <AddAutomatics />,
+    second: () => <AddAutomatics indexActiveScreen={stateTab.index} />,
   });
   return (
     <View style={styles.container}>

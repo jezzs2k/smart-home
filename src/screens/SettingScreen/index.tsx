@@ -1,6 +1,8 @@
 import React from 'react';
+import {CompositeNavigationProp, useNavigation} from '@react-navigation/native';
 import {FlatList, Text, TouchableOpacity, View} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Colors} from '../../config';
 
 const HeaderProfile = () => (
@@ -41,12 +43,14 @@ const HeaderProfile = () => (
 interface ItemType {
   Icon: React.ComponentType<any> | React.ReactElement | null | undefined;
   label: string;
+  nameNavigate?: string;
 }
 
 const DataItem: ItemType[] = [
   {
     Icon: <AntDesign name={'home'} size={28} color={'#000000'} />,
     label: 'Quản lý nhà',
+    nameNavigate: 'DeviceAtHome',
   },
   {
     Icon: <AntDesign name={'message1'} size={28} color={'#000000'} />,
@@ -58,13 +62,37 @@ const DataItem: ItemType[] = [
   },
 ];
 
+enum NameNavigate {
+  AddDevice = 'AddDevice',
+  Home = 'Home',
+  DeviceAtHome = 'DeviceAtHome',
+}
+
+type HomeStackParamList = {
+  Home: undefined;
+  AddDevice: undefined;
+  DeviceAtHome: undefined;
+};
+
+type ProfileScreenNavigationProp = NativeStackNavigationProp<
+  HomeStackParamList,
+  'DeviceAtHome'
+>;
+
 const ListItem = () => {
+  const navigation = useNavigation<ProfileScreenNavigationProp>();
   const renderItem = ({item}: {item: ItemType}) => {
     const {label, Icon} = item;
 
+    const nameNavigate: string | undefined | null = item?.nameNavigate;
+
     return (
       <TouchableOpacity
-        onPress={() => {}}
+        onPress={() => {
+          NameNavigate.DeviceAtHome === nameNavigate
+            ? navigation.navigate(NameNavigate.DeviceAtHome)
+            : null;
+        }}
         style={{
           flexDirection: 'row',
           paddingHorizontal: 16,

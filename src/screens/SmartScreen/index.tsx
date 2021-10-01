@@ -1,3 +1,4 @@
+import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -5,8 +6,11 @@ import {Button, ScreenDefault} from '../../components';
 import {Colors} from '../../config';
 
 export const SmartScreen = () => {
+  const navigation = useNavigation();
+
   const handleSmartScreen = () => {
     //Navigation smart screen
+    navigation.navigate('AddDevice');
   };
 
   return (

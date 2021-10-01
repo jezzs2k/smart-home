@@ -1,12 +1,19 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 
-interface AddAutomaticsProps {}
+import {ScanQrCode} from '../../../components/QRCode';
+import {Colors} from '../../../config';
 
-export const AddAutomatics = ({}: AddAutomaticsProps) => {
-  return <View />;
+interface AddAutomaticsProps {
+  indexActiveScreen: number;
+}
+
+export const AddAutomatics = ({indexActiveScreen}: AddAutomaticsProps) => {
+  return <ScanQrCode indexActiveScreen={indexActiveScreen} />;
 };
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    backgroundColor: Colors.BG,
+  },
 });

@@ -10,6 +10,7 @@ import {
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {RNCamera} from 'react-native-camera';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useIsFocused} from '@react-navigation/native';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -18,13 +19,20 @@ let valueSwich = 0;
 let timeRunWhenFadeOut: NodeJS.Timer | null;
 let timeRunWhenFadeIn: NodeJS.Timer | null;
 
-export const ScanQrCode = () => {
+export const ScanQrCode = ({
+  indexActiveScreen = 1,
+}: {
+  indexActiveScreen: number;
+}) => {
+  const isForcused = useIsFocused();
   const [flashOn, setFlashOn] = useState(RNCamera.Constants.FlashMode.off);
   const [scanAgain, setScanAgain] = useState(false);
 
   const onSuccess = (e: any) => {
     console.log(e);
   };
+
+  console.log(isForcused);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const fadeIn = (value: number) => {
@@ -34,6 +42,7 @@ export const ScanQrCode = () => {
       time();
       return;
     }
+
     Animated.timing(fadeAnim, {
       toValue: value,
       duration: 150,
@@ -57,8 +66,22 @@ export const ScanQrCode = () => {
   };
 
   useEffect(() => {
-    time2();
+    if (!isForcused) {
+      handleClearTime();
+    } else {
+      timeRunWhenFadeOut == null && timeRunWhenFadeIn == null && time2();
+    }
+  }, [isForcused]);
 
+  useEffect(() => {
+    if (indexActiveScreen === 1) {
+      time2();
+    } else {
+      handleClearTime();
+    }
+  }, [indexActiveScreen]);
+
+  useEffect(() => {
     return () => {
       handleClearTime();
     };
@@ -89,6 +112,8 @@ export const ScanQrCode = () => {
   const handleClearTime = () => {
     timeRunWhenFadeIn && clearInterval(timeRunWhenFadeIn);
     timeRunWhenFadeOut && clearInterval(timeRunWhenFadeOut);
+    timeRunWhenFadeIn = null;
+    timeRunWhenFadeOut = null;
   };
 
   const handleOnOffFlash = () => {

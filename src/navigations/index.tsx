@@ -12,28 +12,31 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 
-import {EmptyScreen, HomeScreen, SmartScreen, SettingScreen} from '../screens';
+import {
+  HomeScreen,
+  SmartScreen,
+  SettingScreen,
+  DeviceScreens,
+} from '../screens';
 import {Colors} from '../config';
 import {Button} from '../components';
+import {ScanQrCode} from '../components/QRCode';
+import {AddManually} from '../screens/Devices/Addmanually';
 
 type HomeStackParamList = {
   Home: undefined;
+  AddDevice: undefined;
 };
 
 type SmartStackParamList = {
   Smart: undefined;
+  AddDevice: undefined;
 };
-
-// type ShortsStackParamList = {
-//   Short: undefined;
-// };
-
-// type ChanelsStackParamList = {
-//   Chanel: undefined;
-// };
 
 type SettingsStackParamList = {
   Setting: undefined;
+  ScanQRCode: undefined;
+  DeviceAtHome: undefined;
 };
 
 interface StackScreenOptions {
@@ -61,32 +64,42 @@ interface TabOptions {
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 const CreatesStack = createNativeStackNavigator<SmartStackParamList>();
-// const ChanelsStack = createNativeStackNavigator<ChanelsStackParamList>();
 const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
 function HomeStackScreen() {
   return (
-    <HomeStack.Navigator
-      screenOptions={StackScreenOptions({
-        title: 'Home',
-        renderHeader: ({route, navigation}) => (
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              width: '95%',
-            }}>
-            <TouchableOpacity onPress={() => {}}>
-              <AntDesign name={'user'} color={'#212329'} size={24} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {}}>
-              <AntDesign name={'plus'} color={'#212329'} size={24} />
-            </TouchableOpacity>
-          </View>
-        ),
-      })}>
-      <HomeStack.Screen name="Home" component={HomeScreen} />
+    <HomeStack.Navigator>
+      <HomeStack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={StackScreenOptions({
+          title: 'Home',
+          renderHeader: ({route, navigation}) => (
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                width: '95%',
+              }}>
+              <TouchableOpacity onPress={() => {}}>
+                <AntDesign name={'user'} color={'#212329'} size={24} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('AddDevice');
+                }}>
+                <AntDesign name={'plus'} color={'#212329'} size={24} />
+              </TouchableOpacity>
+            </View>
+          ),
+        })}
+      />
+      <HomeStack.Screen
+        name={'AddDevice'}
+        component={DeviceScreens}
+        options={StackScreenOptions({title: 'AddDevice'})}
+      />
     </HomeStack.Navigator>
   );
 }
@@ -117,20 +130,14 @@ function CreatesStackScreen() {
         ),
       })}>
       <CreatesStack.Screen name="Smart" component={SmartScreen} />
+      <CreatesStack.Screen
+        name={'AddDevice'}
+        component={DeviceScreens}
+        options={StackScreenOptions({title: 'AddDevice'})}
+      />
     </CreatesStack.Navigator>
   );
 }
-
-// function ChanelsStackScreen() {
-//   return (
-//     <ChanelsStack.Navigator
-//       screenOptions={StackScreenOptions({
-//         title: 'Chanels',
-//       })}>
-//       <ChanelsStack.Screen name="Chanel" component={EmptyScreen} />
-//     </ChanelsStack.Navigator>
-//   );
-// }
 
 function SettingsStackScreen() {
   return (
@@ -149,7 +156,9 @@ function SettingsStackScreen() {
                 width: '98%',
               }}>
               <TouchableOpacity
-                onPress={() => {}}
+                onPress={() => {
+                  navigation.navigate('ScanQRCode');
+                }}
                 style={{marginHorizontal: 8}}>
                 <AntDesign name={'scan1'} color={'#212329'} size={24} />
               </TouchableOpacity>
@@ -160,6 +169,40 @@ function SettingsStackScreen() {
                 style={{marginHorizontal: 8}}>
                 <AntDesign name={'setting'} color={'#212329'} size={24} />
               </TouchableOpacity>
+            </View>
+          ),
+        })}
+      />
+      <SettingsStack.Screen
+        name={'ScanQRCode'}
+        component={ScanQrCode}
+        options={StackScreenOptions({
+          title: 'ScanQRCode',
+          renderHeader: ({route, navigation}) => (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{textAlign: 'center'}}>Quét mã QR để kết nối</Text>
+            </View>
+          ),
+        })}
+      />
+      <SettingsStack.Screen
+        name={'DeviceAtHome'}
+        component={AddManually}
+        options={StackScreenOptions({
+          title: 'DeviceAtHome',
+          renderHeader: ({route, navigation}) => (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{textAlign: 'center'}}>
+                Các thiết bị điện trong nhà
+              </Text>
             </View>
           ),
         })}
@@ -192,15 +235,6 @@ export default function BottomTabs() {
             ),
           })}
         />
-        {/* <Tab.Screen
-          name="Chanels"
-          component={ChanelsStackScreen}
-          options={TabOptions({
-            renderIcon: ({color, size}) => (
-              <AntDesign name={'codesquareo'} color={color} size={size} />
-            ),
-          })}
-        /> */}
         <Tab.Screen
           name="Settings"
           component={SettingsStackScreen}
@@ -246,7 +280,6 @@ const StackScreenOptions = ({
     elevation: 0,
     shadowOpacity: 0,
   },
-
   headerShown: renderHeader ? headerShown : !!renderHeader,
 });
 
