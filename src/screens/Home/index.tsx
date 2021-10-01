@@ -1,6 +1,20 @@
-import React from 'react';
-import {StyleSheet, View, FlatList} from 'react-native';
-import {Button, ScreenDefault} from '../../components';
+import React, {useState} from 'react';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  TouchableOpacity,
+  Animated,
+} from 'react-native';
+import {DeviceScreens} from '..';
+import {
+  Button,
+  DeviceComponent,
+  ListDevice,
+  ScreenDefault,
+} from '../../components';
+import {ScanQrCode} from '../../components/QRCode';
+import {ElectricSvg, FanSVG, OutletIcon} from '../../components/Svgs';
 import {Colors} from '../../config';
 
 export const HomeScreen = () => {
@@ -10,7 +24,7 @@ export const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScreenDefault
+      {/* <ScreenDefault
         titleScreen={'Không có thiết bị, vui lòng thêm'}
         onPress={handleAddDevices}
         ButtonComp={
@@ -20,7 +34,9 @@ export const HomeScreen = () => {
             isShowIcon={false}
           />
         }
-      />
+      /> */}
+      {/* <DeviceScreens /> */}
+      <ScanQrCode />
     </View>
   );
 };
@@ -28,6 +44,14 @@ export const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.BG,
+  },
+  tabBar: {
+    flexDirection: 'row',
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 16,
   },
 });
