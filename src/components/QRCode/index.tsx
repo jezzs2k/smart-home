@@ -1,18 +1,12 @@
-import React, {Component, useEffect, useRef, useState} from 'react';
-import {
-  Animated,
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {Animated, Dimensions, StyleSheet, View} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {RNCamera} from 'react-native-camera';
+import {request, PERMISSIONS} from 'react-native-permissions';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useIsFocused} from '@react-navigation/native';
+import WifiManager from 'react-native-wifi-reborn';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 let valueSwich = 0;
@@ -29,10 +23,29 @@ export const ScanQrCode = ({
   const [scanAgain, setScanAgain] = useState(false);
 
   const onSuccess = (e: any) => {
-    console.log(e);
-  };
+    let ssid = '';
+    let password = '';
+    const isWep = false;
 
-  console.log(isForcused);
+    e.data.split(';').map((item: string) => {
+      if (item.includes('S')) {
+        ssid = item.split('S:')[1];
+      }
+
+      if (item.includes('P')) {
+        password = item.split('P:')[1];
+      }
+    });
+
+    WifiManager.connectToProtectedSSID(ssid, password, isWep).then(
+      () => {
+        console.log('Connected successfully!');
+      },
+      () => {
+        console.log('Connection failed!');
+      },
+    );
+  };
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const fadeIn = (value: number) => {
@@ -64,6 +77,14 @@ export const ScanQrCode = ({
       useNativeDriver: true,
     }).start();
   };
+
+  useEffect(() => {
+    request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION).then(result => {
+      console.log('result', result);
+
+      // …
+    });
+  }, []);
 
   useEffect(() => {
     if (!isForcused) {
