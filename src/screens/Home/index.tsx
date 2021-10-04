@@ -2,13 +2,11 @@ import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
-import {DeviceScreens} from '..';
 import {Button, ScreenDefault} from '../../components';
 import {Colors} from '../../config';
 
 export const HomeScreen = () => {
   const navigation = useNavigation();
-
   const handleAddDevices = () => {
     //Navigation
     navigation.navigate('AddDevice');
