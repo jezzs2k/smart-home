@@ -17,6 +17,8 @@ import {
   SmartScreen,
   SettingScreen,
   DeviceScreens,
+  LoginScreen,
+  RegisterScreen,
 } from '../screens';
 import {Colors} from '../config';
 import {Button} from '../components';
@@ -26,6 +28,8 @@ import {AddManually} from '../screens/Devices/Addmanually';
 type HomeStackParamList = {
   Home: undefined;
   AddDevice: undefined;
+  Login: undefined;
+  Register: undefined;
 };
 
 type SmartStackParamList = {
@@ -82,7 +86,10 @@ function HomeStackScreen() {
                 alignItems: 'center',
                 width: '95%',
               }}>
-              <TouchableOpacity onPress={() => {}}>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('Login');
+                }}>
                 <AntDesign name={'user'} color={'#212329'} size={24} />
               </TouchableOpacity>
               <TouchableOpacity
@@ -99,6 +106,23 @@ function HomeStackScreen() {
         name={'AddDevice'}
         component={DeviceScreens}
         options={StackScreenOptions({title: 'AddDevice'})}
+      />
+
+      <HomeStack.Screen
+        name={'Login'}
+        component={LoginScreen}
+        options={StackScreenOptions({
+          title: 'Login',
+          renderHeader: ({route, navigation}) => <View />,
+        })}
+      />
+      <HomeStack.Screen
+        name={'Register'}
+        component={RegisterScreen}
+        options={StackScreenOptions({
+          title: 'Register',
+          renderHeader: ({route, navigation}) => <View />,
+        })}
       />
     </HomeStack.Navigator>
   );
@@ -279,7 +303,9 @@ const StackScreenOptions = ({
     borderBottomColor: '#ffffff',
     elevation: 0,
     shadowOpacity: 0,
+    borderWidth: 0,
   },
+  headerShadowVisible: false,
   headerShown: renderHeader ? headerShown : !!renderHeader,
 });
 

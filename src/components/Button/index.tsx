@@ -6,15 +6,19 @@ import {
   TouchableOpacity,
   View,
   Dimensions,
+  StyleProp,
+  ViewStyle,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {Colors} from '../../config';
+import {Colors, RADIUS_DEFAULT_INPUT_BTN} from '../../config';
 
 interface ButtonProps {
   title: string;
   Icon?: React.ComponentType<any> | React.ReactElement | null | undefined;
   isShowIcon?: boolean;
   isShowText?: boolean;
+  containerStyle?: StyleProp<ViewStyle>;
+  contentBtnStyle?: StyleProp<ViewStyle>;
 
   onPress: ((event: GestureResponderEvent) => void) | undefined;
 }
@@ -27,12 +31,18 @@ export const Button = ({
   isShowText = true,
   onPress,
   title,
+  containerStyle = {},
+  contentBtnStyle = {},
 }: ButtonProps) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.container, !isShowText && {borderRadius: width}]}>
-      <View style={styles.contentBtn}>
+      style={[
+        styles.container,
+        !isShowText && {borderRadius: width},
+        containerStyle,
+      ]}>
+      <View style={[styles.contentBtn, contentBtnStyle]}>
         {isShowText && (
           <Text
             numberOfLines={1}
@@ -52,7 +62,7 @@ export const Button = ({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.primary,
-    borderRadius: 8,
+    borderRadius: RADIUS_DEFAULT_INPUT_BTN,
   },
   contentBtn: {
     flexDirection: 'row',

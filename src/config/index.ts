@@ -1,3 +1,5 @@
 import Colors from './Colors';
 
-export {Colors};
+const RADIUS_DEFAULT_INPUT_BTN = 8;
+
+export {Colors, RADIUS_DEFAULT_INPUT_BTN};

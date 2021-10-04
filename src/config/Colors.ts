@@ -1,4 +1,8 @@
 export default {
   primary: '#5e92f7',
-  BG: '#f5f5f5',
+  BG: '#F9fdff',
+  BG_INPUT: '#e5f1f1',
+  URL_COLOR: '#2a77a1',
+  RED: 'red',
+  TEXT: '#909090',
 };
