@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
@@ -6,6 +6,9 @@ import {Button, CodeFieldComp, ScreenDefault} from '../../components';
 import {Colors} from '../../config';
 import {ModalLoading} from '../../components/ModalLoading';
 import useTimeout from '../../Hooks/useTimeout';
+import {useSelector} from 'react-redux';
+import {RootState, useAppDispatch} from '../../stores/stores';
+import {AuthStateReducer, start} from '../../stores/auth';
 
 interface HomeProps {
   loading: boolean;
@@ -17,18 +20,33 @@ interface HomeProps {
 export const HomeScreen = ModalLoading()(
   ({onSetLoading, onCloseLoading}: HomeProps) => {
     const navigation = useNavigation();
+
+    const auth = useSelector<RootState>(
+      state => state.auth,
+    ) as AuthStateReducer;
+
+    const dispatch = useAppDispatch();
+
+    console.log(auth);
+
     const handleAddDevices = () => {
       //Navigation
       navigation.navigate('AddDevice');
     };
 
     useTimeout(() => {
-      onSetLoading();
+      dispatch(start());
     }, 1000);
 
     useTimeout(() => {
       onCloseLoading();
     }, 3000);
+
+    useEffect(() => {
+      if (auth.loading) {
+        onSetLoading();
+      }
+    }, [auth]);
 
     return (
       <View style={styles.container}>
