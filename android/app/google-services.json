@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "541989752602",
+    "firebase_url": "https://smart-home-87480-default-rtdb.firebaseio.com",
+    "project_id": "smart-home-87480",
+    "storage_bucket": "smart-home-87480.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:541989752602:android:c2b569548a04bdaa76a6a3",
+        "android_client_info": {
+          "package_name": "com.smarthome"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "541989752602-uk7r11rlito94c3d8uimeboi1c266a88.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smarthome",
+            "certificate_hash": "86554edcb8a4da9898209a40c84531472a56a58d"
+          }
+        },
+        {
+          "client_id": "541989752602-b2d0185a9ff825f3ieph0m6d9gn9j9al.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_ZdPvBw-RGMXgfrHTQa1A4xZkUFMRfeM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "541989752602-b2d0185a9ff825f3ieph0m6d9gn9j9al.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

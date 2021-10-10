@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import database from '@react-native-firebase/database';
 
 import {Button, CodeFieldComp, ScreenDefault} from '../../components';
 import {Colors} from '../../config';
@@ -43,6 +44,13 @@ export const HomeScreen = ModalLoading()(
     }, 3000);
 
     useEffect(() => {
+      database()
+        .ref('/36d57abd-7e84-4079-afc0-cc9693a6dd90')
+        .once('value')
+        .then(snapshot => {
+          console.log('User data: ', snapshot.val());
+        });
+
       if (auth.loading) {
         onSetLoading();
       }
