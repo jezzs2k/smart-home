@@ -1,14 +1,27 @@
 import React, {useEffect} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {FlatList, StyleSheet, View} from 'react-native';
+import {
+  NavigationProp,
+  useFocusEffect,
+  useIsFocused,
+  useNavigation,
+} from '@react-navigation/native';
 
-import {Button, CodeFieldComp, ScreenDefault} from '../../components';
+import {
+  Button,
+  CodeFieldComp,
+  DeviceComponent,
+  ListDevice,
+  ScreenDefault,
+} from '../../components';
 import {Colors} from '../../config';
 import {ModalLoading} from '../../components/ModalLoading';
 import useTimeout from '../../Hooks/useTimeout';
 import {useSelector} from 'react-redux';
 import {RootState, useAppDispatch} from '../../stores/stores';
 import {AuthStateReducer, start} from '../../stores/auth';
+import {NavigationScreen} from '../../config/NavigationScreen';
+import {DeviceT, getDevices} from '../../stores/factories/device';
 
 interface HomeProps {
   loading: boolean;
@@ -19,34 +32,55 @@ interface HomeProps {
 
 export const HomeScreen = ModalLoading()(
   ({onSetLoading, onCloseLoading}: HomeProps) => {
-    const navigation = useNavigation();
-
-    const auth = useSelector<RootState>(
-      state => state.auth,
-    ) as AuthStateReducer;
-
+    const navigation = useNavigation<NavigationProp<any>>();
+    const {loading, data} = useSelector((state: RootState) => state.device);
+    const isFocused = useIsFocused();
     const dispatch = useAppDispatch();
-
-    console.log(auth);
 
     const handleAddDevices = () => {
       //Navigation
-      navigation.navigate('AddDevice');
+      navigation.navigate(NavigationScreen.AddDevice);
     };
 
-    useTimeout(() => {
-      dispatch(start());
-    }, 1000);
-
-    useTimeout(() => {
-      onCloseLoading();
-    }, 3000);
+    const renderItem = ({item}: {item: DeviceT}) => {
+      if (!item.isConnected) {
+        return null;
+      }
+      return (
+        <DeviceComponent
+          title={item.deviceName}
+          onPress={() => {
+            console.log('ok', item);
+          }}
+          keyItem={item.id}
+        />
+      );
+    };
 
     useEffect(() => {
-      if (auth.loading) {
+      isFocused && dispatch(getDevices());
+    }, [isFocused]);
+
+    useEffect(() => {
+      if (loading) {
         onSetLoading();
+      } else {
+        onCloseLoading();
       }
-    }, [auth]);
+    }, [loading]);
+
+    if (data) {
+      return (
+        <View style={styles.container}>
+          <FlatList
+            data={data}
+            renderItem={renderItem}
+            numColumns={3}
+            keyExtractor={item => item.id}
+          />
+        </View>
+      );
+    }
 
     return (
       <View style={styles.container}>

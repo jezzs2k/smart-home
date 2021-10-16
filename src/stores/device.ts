@@ -1,9 +1,8 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {User} from './factories/login';
+import {DeviceT} from './factories/device';
 
 interface PayloadActionType {
-  user?: User | null;
-  token?: string | null;
+  data?: DeviceT[] | null;
   error?: any;
 }
 
@@ -13,20 +12,18 @@ export interface AuthStateReducer extends PayloadActionType {
 
 const initState: AuthStateReducer = {
   loading: false,
-  user: null,
-  token: null,
   error: null,
+  data: null,
 };
 
-const authSlice = createSlice({
-  name: 'auth',
+const devicesSlice = createSlice({
+  name: 'devices',
   initialState: initState,
   reducers: {
     start: state => ({...state, loading: true}),
     resolves: (state, action: PayloadAction<PayloadActionType>) => ({
       ...state,
-      user: action.payload.user,
-      token: action.payload.token,
+      data: action.payload.data,
       loading: false,
       error: null,
     }),
@@ -34,11 +31,10 @@ const authSlice = createSlice({
       ...state,
       error: action.payload.error,
       loading: false,
-      user: null,
-      token: null,
+      data: null,
     }),
   },
 });
 
-export const {start, reject, resolves} = authSlice.actions;
-export default authSlice.reducer;
+export const {start, reject, resolves} = devicesSlice.actions;
+export default devicesSlice.reducer;

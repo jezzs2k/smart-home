@@ -1,10 +1,14 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Text, TouchableOpacity, StyleSheet, View} from 'react-native';
 import {Formik} from 'formik';
 import {Form, InputComp} from '../../components';
 import {Button} from '../../components';
 import {Colors} from '../../config';
-import {useNavigation} from '@react-navigation/core';
+import {NavigationProp, useNavigation} from '@react-navigation/core';
+import {RootState, useAppDispatch} from '../../stores/stores';
+import {login} from '../../stores/factories/login';
+import {useSelector} from 'react-redux';
+import {NavigationScreen} from '../../config/NavigationScreen';
 
 interface LoginScreenProps {}
 
@@ -16,16 +20,25 @@ interface LoginViewMode {
 const initialValues = {email: '', password: ''};
 
 export const LoginScreen = ({}: LoginScreenProps) => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
+  const dispatch = useAppDispatch();
+
+  const {loading, token} = useSelector((state: RootState) => state.auth);
 
   const handleSubmit = (values: LoginViewMode) => {
-    console.log(values);
+    dispatch(login({username: values.email, password: values.password}));
   };
 
   const handleToRegister = () => {
-    navigation.navigate('Register');
+    navigation.navigate(NavigationScreen.Register);
   };
   const handleForgotPass = () => {};
+
+  useEffect(() => {
+    if (token) {
+      navigation.navigate(NavigationScreen.Home);
+    }
+  }, [token]);
 
   return (
     <Formik initialValues={initialValues} onSubmit={handleSubmit}>
@@ -67,6 +80,7 @@ export const LoginScreen = ({}: LoginScreenProps) => {
             contentBtnStyle={{
               padding: 13,
             }}
+            loading={loading}
           />
         </Form>
       )}

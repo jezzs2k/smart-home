@@ -14,16 +14,19 @@ import {
 } from 'redux-persist';
 
 import authReducer from './auth';
+import deviceReducer from './device';
 
 export type RootState = ReturnType<typeof store.getState>;
 
 const reducer = combineReducers({
   auth: authReducer,
+  device: deviceReducer,
 });
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
+  whitelist: ['auth'],
 };
 
 const persistedReducer = persistReducer(persistConfig, reducer);

@@ -8,6 +8,7 @@ import {
   Dimensions,
   StyleProp,
   ViewStyle,
+  ActivityIndicator,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Colors, RADIUS_DEFAULT_INPUT_BTN} from '../../config';
@@ -19,6 +20,7 @@ interface ButtonProps {
   isShowText?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
   contentBtnStyle?: StyleProp<ViewStyle>;
+  loading?: boolean;
 
   onPress: ((event: GestureResponderEvent) => void) | undefined;
 }
@@ -33,6 +35,7 @@ export const Button = ({
   title,
   containerStyle = {},
   contentBtnStyle = {},
+  loading = false,
 }: ButtonProps) => {
   return (
     <TouchableOpacity
@@ -51,6 +54,8 @@ export const Button = ({
           </Text>
         )}
         <View style={styles.iconStyle}>
+          {loading && <ActivityIndicator style={styles.loading} />}
+
           {isShowIcon &&
             (Icon ?? <AntDesign name={'user'} size={16} color={'#ffffff'} />)}
         </View>
@@ -79,4 +84,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   iconStyle: {},
+  loading: {
+    paddingHorizontal: 8,
+  },
 });
