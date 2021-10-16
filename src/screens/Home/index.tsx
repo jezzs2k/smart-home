@@ -6,6 +6,7 @@ import {
   useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
+import database from '@react-native-firebase/database';
 
 import {
   Button,
@@ -42,6 +43,19 @@ export const HomeScreen = ModalLoading()(
       navigation.navigate(NavigationScreen.AddDevice);
     };
 
+    useEffect(() => {
+      isFocused && dispatch(getDevices());
+    }, [isFocused]);
+
+    useEffect(() => {
+      database()
+        .ref('/36d57abd-7e84-4079-afc0-cc9693a6dd90')
+        .once('value')
+        .then(snapshot => {
+          console.log('User data: ', snapshot.val());
+        });
+    }, []);
+
     const renderItem = ({item}: {item: DeviceT}) => {
       if (!item.isConnected) {
         return null;
@@ -58,16 +72,16 @@ export const HomeScreen = ModalLoading()(
     };
 
     useEffect(() => {
-      isFocused && dispatch(getDevices());
-    }, [isFocused]);
-
-    useEffect(() => {
       if (loading) {
         onSetLoading();
       } else {
         onCloseLoading();
       }
     }, [loading]);
+
+    if (loading) {
+      return null;
+    }
 
     if (data) {
       return (
