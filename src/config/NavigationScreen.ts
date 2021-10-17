@@ -5,4 +5,5 @@ export enum NavigationScreen {
   AddDevice = 'AddDevice',
   Register = 'Register',
   Login = 'Login',
+  ConnectEsp = 'ConnectEsp',
 }

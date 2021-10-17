@@ -1,3 +1,4 @@
+import {NavigationProp, useNavigation} from '@react-navigation/core';
 import React from 'react';
 import {
   StyleSheet,
@@ -7,6 +8,7 @@ import {
   SectionListData,
 } from 'react-native';
 import {Colors} from '../../config';
+import {NavigationScreen} from '../../config/NavigationScreen';
 import {DeviceComponent} from '../DeviceComponent';
 import {ElectricSvg, FanSVG, LightBulb, OutletIcon} from '../Svgs';
 
@@ -25,6 +27,8 @@ const ListDeviceData = [
 ];
 
 export const ListDevice = ({}: ListDeviceDataProps) => {
+  const navigation = useNavigation<NavigationProp<any>>();
+
   const renderItem = ({
     section,
     index,
@@ -32,6 +36,9 @@ export const ListDevice = ({}: ListDeviceDataProps) => {
     section: SectionListData<Device>;
     index: number;
   }) => {
+    const handleToScanQr = () => {
+      navigation.navigate(NavigationScreen.ScanQRCode);
+    };
     const numColumns = 3;
 
     if (index % numColumns !== 0) return null;
@@ -46,7 +53,7 @@ export const ListDevice = ({}: ListDeviceDataProps) => {
       items.push(
         <React.Fragment key={section.data[i].title + Math.random()}>
           <DeviceComponent
-            onPress={() => console.log('ok')}
+            onPress={handleToScanQr}
             title={section.data[i].title}
             ICON={section.data[i].icon}
             keyItem={section.data[i].title + Math.random()}

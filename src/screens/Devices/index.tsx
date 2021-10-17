@@ -12,6 +12,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Colors} from '../../config';
 import {AddAutomatics} from './AddAutomatics';
 import {AddManually} from './Addmanually';
+import {EmptyScreen} from '..';
 
 interface RouteType {
   key: string;
@@ -76,7 +77,7 @@ export const DeviceScreens = () => {
 
   const renderScene = SceneMap({
     first: () => <AddManually />,
-    second: () => <AddAutomatics indexActiveScreen={stateTab.index} />,
+    second: () => <EmptyScreen />,
   });
   return (
     <View style={styles.container}>

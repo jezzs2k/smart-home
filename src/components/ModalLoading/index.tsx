@@ -7,6 +7,13 @@ interface IModalLoadingState {
   loading: boolean;
 }
 
+
+export interface IModalLoadingPassProp {
+  loading: boolean;
+  onSetLoading: () => void;
+  onCloseLoading: () => void;
+}
+
 export function ModalLoading<T>(): any {
   return (WrappedComponent: React.ComponentType<T>): React.ComponentType<T> =>
     class ModalLoading extends React.Component<T, IModalLoadingState> {

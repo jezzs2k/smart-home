@@ -36,7 +36,7 @@ export const LoginScreen = ({}: LoginScreenProps) => {
 
   useEffect(() => {
     if (token) {
-      navigation.navigate(NavigationScreen.Home);
+      // navigation.navigate(NavigationScreen.Home);
     }
   }, [token]);
 

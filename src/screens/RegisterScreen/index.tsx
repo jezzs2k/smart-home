@@ -3,7 +3,7 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Formik} from 'formik';
 import {Button, Form, InputComp} from '../../components';
 import {Colors} from '../../config';
-import {useNavigation} from '@react-navigation/core';
+import {NavigationProp, useNavigation} from '@react-navigation/core';
 
 interface RegisterScreenProps {}
 
@@ -36,12 +36,11 @@ const tranferValuesObject = (obj: RegisterView): RegisterViewMode => {
 };
 
 export const RegisterScreen = ({}: RegisterScreenProps) => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
 
   const handleSubmit = (values: RegisterView) => {
-    console.log(values);
-
     console.log('Right value', tranferValuesObject(values));
+    // const newForm = new
   };
 
   const handleToLogin = () => {

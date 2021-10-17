@@ -19,17 +19,21 @@ import {
   DeviceScreens,
   LoginScreen,
   RegisterScreen,
+  ConnectEsp,
 } from '../screens';
 import {Colors} from '../config';
 import {Button} from '../components';
 import {ScanQrCode} from '../components/QRCode';
 import {AddManually} from '../screens/Devices/Addmanually';
+import {NavigationScreen} from '../config/NavigationScreen';
 
 type HomeStackParamList = {
   Home: undefined;
   AddDevice: undefined;
   Login: undefined;
   Register: undefined;
+  ScanQRCode: undefined;
+  ConnectEsp: undefined;
 };
 
 type SmartStackParamList = {
@@ -39,7 +43,6 @@ type SmartStackParamList = {
 
 type SettingsStackParamList = {
   Setting: undefined;
-  ScanQRCode: undefined;
   DeviceAtHome: undefined;
 };
 
@@ -88,13 +91,13 @@ function HomeStackScreen() {
               }}>
               <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate('Login');
+                  navigation.navigate(NavigationScreen.Login);
                 }}>
                 <AntDesign name={'user'} color={'#212329'} size={24} />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate('AddDevice');
+                  navigation.navigate(NavigationScreen.AddDevice);
                 }}>
                 <AntDesign name={'plus'} color={'#212329'} size={24} />
               </TouchableOpacity>
@@ -103,9 +106,9 @@ function HomeStackScreen() {
         })}
       />
       <HomeStack.Screen
-        name={'AddDevice'}
+        name={NavigationScreen.AddDevice}
         component={DeviceScreens}
-        options={StackScreenOptions({title: 'AddDevice'})}
+        options={StackScreenOptions({title: NavigationScreen.AddDevice})}
       />
 
       <HomeStack.Screen
@@ -122,6 +125,38 @@ function HomeStackScreen() {
         options={StackScreenOptions({
           title: 'Register',
           renderHeader: ({route, navigation}) => <View />,
+        })}
+      />
+      <HomeStack.Screen
+        name={NavigationScreen.ScanQRCode}
+        component={ScanQrCode}
+        options={StackScreenOptions({
+          title: NavigationScreen.ScanQRCode,
+          renderHeader: ({route, navigation}) => (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{textAlign: 'center'}}>Quét mã QR để kết nối</Text>
+            </View>
+          ),
+        })}
+      />
+      <HomeStack.Screen
+        name={NavigationScreen.ConnectEsp}
+        component={ConnectEsp}
+        options={StackScreenOptions({
+          title: NavigationScreen.ConnectEsp,
+          renderHeader: ({route, navigation}) => (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{textAlign: 'center'}}>Quét mã QR để kết nối</Text>
+            </View>
+          ),
         })}
       />
     </HomeStack.Navigator>
@@ -155,9 +190,9 @@ function CreatesStackScreen() {
       })}>
       <CreatesStack.Screen name="Smart" component={SmartScreen} />
       <CreatesStack.Screen
-        name={'AddDevice'}
+        name={NavigationScreen.AddDevice}
         component={DeviceScreens}
-        options={StackScreenOptions({title: 'AddDevice'})}
+        options={StackScreenOptions({title: NavigationScreen.AddDevice})}
       />
     </CreatesStack.Navigator>
   );
@@ -181,7 +216,7 @@ function SettingsStackScreen() {
               }}>
               <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate('ScanQRCode');
+                  navigation.navigate(NavigationScreen.ScanQRCode);
                 }}
                 style={{marginHorizontal: 8}}>
                 <AntDesign name={'scan1'} color={'#212329'} size={24} />
@@ -193,22 +228,6 @@ function SettingsStackScreen() {
                 style={{marginHorizontal: 8}}>
                 <AntDesign name={'setting'} color={'#212329'} size={24} />
               </TouchableOpacity>
-            </View>
-          ),
-        })}
-      />
-      <SettingsStack.Screen
-        name={'ScanQRCode'}
-        component={ScanQrCode}
-        options={StackScreenOptions({
-          title: 'ScanQRCode',
-          renderHeader: ({route, navigation}) => (
-            <View
-              style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Text style={{textAlign: 'center'}}>Quét mã QR để kết nối</Text>
             </View>
           ),
         })}

@@ -9,10 +9,10 @@ export const EmptyScreen = () => {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#000000',
+        backgroundColor: '#fff',
       }}>
-      <AntDesign name={'close'} color={'#ffffff'} size={35} />
-      <Text style={{marginVertical: 8, color: '#ffffff', fontWeight: '700'}}>
+      <AntDesign name={'close'} color={'#000'} size={35} />
+      <Text style={{marginVertical: 8, color: '#000', fontWeight: '700'}}>
         Empty Screen
       </Text>
     </View>
