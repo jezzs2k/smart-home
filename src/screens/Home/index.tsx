@@ -62,6 +62,7 @@ export const HomeScreen = ModalLoading()(
       }
       return (
         <DeviceComponent
+          isTurnOn={item.isTurnOn}
           title={item.deviceName}
           onPress={() => {
             console.log('ok', item);
@@ -72,14 +73,14 @@ export const HomeScreen = ModalLoading()(
     };
 
     useEffect(() => {
-      if (loading) {
+      if (loading && !data) {
         onSetLoading();
       } else {
-        onCloseLoading();
+        !data && onCloseLoading();
       }
     }, [loading]);
 
-    if (loading) {
+    if (loading && !data) {
       return null;
     }
 

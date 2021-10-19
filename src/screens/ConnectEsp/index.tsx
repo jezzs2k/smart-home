@@ -60,6 +60,8 @@ export const ConnectEsp = ModalLoading()(
           .once('value')
           .then(snapshot => {
             const data = snapshot.val();
+            console.log(data);
+
             dataRealTime = data;
             onCloseLoading();
 

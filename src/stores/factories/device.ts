@@ -6,6 +6,7 @@ import {AppDispatch} from '../stores';
 
 export interface DeviceT {
   isConnected: boolean;
+  isTurnOn: boolean;
   deviceId: string;
   deviceName: string;
   createdBy: CreatedBy;

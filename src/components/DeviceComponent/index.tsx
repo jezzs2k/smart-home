@@ -15,18 +15,20 @@ interface DeviceComponentProps {
   onPress: ((event: GestureResponderEvent) => void) | undefined;
   ICON?: React.ComponentType<any> | React.ReactElement | null;
   keyItem: string;
+  isTurnOn?: boolean;
 }
 
 export const DeviceComponent = ({
   ICON,
   title,
+  isTurnOn = false,
   subTitle,
   keyItem,
   onPress,
 }: DeviceComponentProps) => {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress} key={keyItem}>
-      {ICON ?? <LightBulb size={80} />}
+      {ICON ?? <LightBulb size={80} color={isTurnOn ? '#f5820c' : null} />}
       <View style={styles.text}>
         <Text numberOfLines={2} style={styles.textStyle}>
           {title}
