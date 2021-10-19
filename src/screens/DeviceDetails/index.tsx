@@ -67,11 +67,13 @@ export const DeviceDetails = ModalLoading()(
     };
 
     useEffect(() => {
+      onSetLoading();
       if (itemDevice.deviceId) {
         database()
           .ref('/' + itemDevice.deviceId)
           .once('value')
           .then(snapshot => {
+            onCloseLoading();
             const data = snapshot.val();
             dataFirebase = data;
 
@@ -80,6 +82,9 @@ export const DeviceDetails = ModalLoading()(
             } else {
               setIsTurnOn(false);
             }
+          })
+          .catch(() => {
+            onCloseLoading();
           });
       }
 
