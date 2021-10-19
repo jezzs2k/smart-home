@@ -65,7 +65,7 @@ export const HomeScreen = ModalLoading()(
           isTurnOn={item.isTurnOn}
           title={item.deviceName}
           onPress={() => {
-            console.log('ok', item);
+            navigation.navigate(NavigationScreen.DeviceDetails, {item});
           }}
           keyItem={item.id}
         />
@@ -76,7 +76,7 @@ export const HomeScreen = ModalLoading()(
       if (loading && !data) {
         onSetLoading();
       } else {
-        !data && onCloseLoading();
+        onCloseLoading();
       }
     }, [loading]);
 

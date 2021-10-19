@@ -20,6 +20,7 @@ import {
   LoginScreen,
   RegisterScreen,
   ConnectEsp,
+  DeviceDetails,
 } from '../screens';
 import {Colors} from '../config';
 import {Button} from '../components';
@@ -34,6 +35,7 @@ type HomeStackParamList = {
   Register: undefined;
   ScanQRCode: undefined;
   ConnectEsp: undefined;
+  DeviceDetails: undefined;
 };
 
 type SmartStackParamList = {
@@ -157,6 +159,13 @@ function HomeStackScreen() {
               <Text style={{textAlign: 'center'}}>Quét mã QR để kết nối</Text>
             </View>
           ),
+        })}
+      />
+      <HomeStack.Screen
+        name={NavigationScreen.DeviceDetails}
+        component={DeviceDetails}
+        options={StackScreenOptions({
+          title: NavigationScreen.ConnectEsp,
         })}
       />
     </HomeStack.Navigator>

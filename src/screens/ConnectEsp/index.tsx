@@ -60,8 +60,6 @@ export const ConnectEsp = ModalLoading()(
           .once('value')
           .then(snapshot => {
             const data = snapshot.val();
-            console.log(data);
-
             dataRealTime = data;
             onCloseLoading();
 
@@ -95,6 +93,12 @@ export const ConnectEsp = ModalLoading()(
             // setShowModal(true);
           });
       }
+
+      return () => {
+        database()
+          .ref('/' + route.params?.idEsp)
+          .off();
+      };
     }, []);
 
     return (
