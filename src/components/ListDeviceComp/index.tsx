@@ -14,7 +14,7 @@ import {ElectricSvg, FanSVG, LightBulb, OutletIcon} from '../Svgs';
 
 interface ListDeviceDataProps {}
 
-interface Device {
+export interface Device {
   title: string;
   icon: React.ComponentType<any> | React.ReactElement | null;
 }
@@ -36,8 +36,8 @@ export const ListDevice = ({}: ListDeviceDataProps) => {
     section: SectionListData<Device>;
     index: number;
   }) => {
-    const handleToScanQr = () => {
-      navigation.navigate(NavigationScreen.ScanQRCode);
+    const handleToScanQr = (item: Device) => {
+      navigation.navigate(NavigationScreen.ScanQRCode, {itemDevice: item});
     };
     const numColumns = 3;
 
@@ -53,7 +53,7 @@ export const ListDevice = ({}: ListDeviceDataProps) => {
       items.push(
         <React.Fragment key={section.data[i].title + Math.random()}>
           <DeviceComponent
-            onPress={handleToScanQr}
+            onPress={() => handleToScanQr(section.data[i])}
             title={section.data[i].title}
             ICON={section.data[i].icon}
             keyItem={section.data[i].title + Math.random()}
@@ -89,10 +89,7 @@ export const ListDevice = ({}: ListDeviceDataProps) => {
 
   return (
     <SectionList
-      sections={[
-        {title: 'asdasda', data: ListDeviceData},
-        {title: '12312321412414', data: ListDeviceData},
-      ]}
+      sections={[{title: 'Thiết bị', data: ListDeviceData}]}
       renderItem={renderItem}
       renderSectionHeader={renderHeaderComponent}
       keyExtractor={(_item, index) => `${index}`}

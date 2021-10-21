@@ -43,6 +43,14 @@ export const HomeScreen = ModalLoading()(
       navigation.navigate(NavigationScreen.AddDevice);
     };
 
+    const handleCheckData = (data?: DeviceT[] | null) => {
+      if (!data) {
+        return false;
+      }
+
+      return data.findIndex(item => item.isConnected === true) !== -1;
+    };
+
     useEffect(() => {
       isFocused && dispatch(getDevices());
     }, [isFocused]);
@@ -55,6 +63,20 @@ export const HomeScreen = ModalLoading()(
           console.log('User data: ', snapshot.val());
         });
     }, []);
+
+    useEffect(() => {
+      if (loading && !data) {
+        onSetLoading();
+      }
+
+      if (!loading) {
+        onCloseLoading();
+      }
+    }, [loading]);
+
+    if (loading && !data) {
+      return null;
+    }
 
     const renderItem = ({item}: {item: DeviceT}) => {
       if (!item.isConnected) {
@@ -72,19 +94,7 @@ export const HomeScreen = ModalLoading()(
       );
     };
 
-    useEffect(() => {
-      if (loading && !data) {
-        onSetLoading();
-      } else {
-        onCloseLoading();
-      }
-    }, [loading]);
-
-    if (loading && !data) {
-      return null;
-    }
-
-    if (data) {
+    if (handleCheckData(data)) {
       return (
         <View style={styles.container}>
           <FlatList

@@ -34,9 +34,13 @@ export const login =
         },
       );
 
-      await setKey(KeyStogare.Token, result.data.token);
+      if (result) {
+        await setKey(KeyStogare.Token, result.data.token);
 
-      dispatch(resolves({user: result.data.user, token: result.data.token}));
+        dispatch(resolves({user: result.data.user, token: result.data.token}));
+      } else {
+        dispatch(reject({error: 'Internal Server'}));
+      }
     } catch (error) {
       dispatch(reject({error: error}));
     }

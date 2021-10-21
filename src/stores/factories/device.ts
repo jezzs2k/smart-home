@@ -1,7 +1,13 @@
 import {KeyStogare} from './../../config/KeyStorage';
 import {AxiosResponse} from 'axios';
 import {axiosInstance, getKey} from '../../utils';
-import {reject, resolves, start} from '../device';
+import {
+  reject,
+  resolves,
+  start,
+  uploadDeviceSuccess,
+  deviceById,
+} from '../device';
 import {AppDispatch} from '../stores';
 
 export interface DeviceT {
@@ -47,8 +53,72 @@ export const getDevices = () => async (dispatch: AppDispatch) => {
       config,
     );
 
-    dispatch(resolves({data: result.data}));
+    if (result) {
+      dispatch(resolves({data: result.data}));
+    } else {
+      dispatch(reject({error: 'Internal Server'}));
+    }
   } catch (error) {
     dispatch(reject({error: error}));
   }
 };
+
+export const getDeviceById = (id: string) => async (dispatch: AppDispatch) => {
+  const token = await getKey(KeyStogare.Token);
+
+  let config = {
+    headers: {
+      Authorization: 'Bearer ' + token,
+    },
+  };
+
+  dispatch(start());
+  try {
+    const result: AxiosResponse<DeviceT> = await axiosInstance.get(
+      '/devices/' + id,
+      config,
+    );
+
+    if (result) {
+      dispatch(deviceById({deviceById: result.data}));
+    } else {
+      dispatch(reject({error: 'Internal Server'}));
+    }
+  } catch (error) {
+    dispatch(reject({error: error}));
+  }
+};
+
+export interface DeviceUploadParamsT {
+  deviceId: string;
+  deviceName: string;
+  deviceType?: string;
+}
+
+export const upLoadDevices =
+  (parmas: DeviceUploadParamsT) => async (dispatch: AppDispatch) => {
+    const token = await getKey(KeyStogare.Token);
+
+    let config = {
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+    };
+
+    dispatch(start());
+    try {
+      const result: AxiosResponse<DeviceT> = await axiosInstance.post(
+        '/devices',
+        parmas,
+        config,
+      );
+
+      if (result) {
+        dispatch(uploadDeviceSuccess({deviceUploaded: result.data}));
+      } else {
+        dispatch(reject({error: 'Internal Server'}));
+      }
+    } catch (error) {
+      dispatch(reject({error: error}));
+    }
+  };

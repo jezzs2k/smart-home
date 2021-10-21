@@ -7,4 +7,5 @@ export enum NavigationScreen {
   Login = 'Login',
   ConnectEsp = 'ConnectEsp',
   DeviceDetails = 'DeviceDetails',
+  FormUploadDevice = 'FormUploadDevice',
 }

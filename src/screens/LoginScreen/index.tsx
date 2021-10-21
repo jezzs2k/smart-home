@@ -9,6 +9,8 @@ import {RootState, useAppDispatch} from '../../stores/stores';
 import {login} from '../../stores/factories/login';
 import {useSelector} from 'react-redux';
 import {NavigationScreen} from '../../config/NavigationScreen';
+import {getKey} from '../../utils';
+import {KeyStogare} from '../../config/KeyStorage';
 
 interface LoginScreenProps {}
 
@@ -26,6 +28,10 @@ export const LoginScreen = ({}: LoginScreenProps) => {
   const {loading, token} = useSelector((state: RootState) => state.auth);
 
   const handleSubmit = (values: LoginViewMode) => {
+    if (!values || !values.email || !values.password) {
+      return;
+    }
+
     dispatch(login({username: values.email, password: values.password}));
   };
 
@@ -34,9 +40,21 @@ export const LoginScreen = ({}: LoginScreenProps) => {
   };
   const handleForgotPass = () => {};
 
+  const handleToken = async () => {
+    const token = await getKey(KeyStogare.Token);
+
+    if (token) {
+      navigation.navigate(NavigationScreen.Home);
+    }
+  };
+
+  useEffect(() => {
+    handleToken();
+  }, []);
+
   useEffect(() => {
     if (token) {
-      // navigation.navigate(NavigationScreen.Home);
+      navigation.navigate(NavigationScreen.Home);
     }
   }, [token]);
 

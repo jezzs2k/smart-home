@@ -21,6 +21,7 @@ import {
   RegisterScreen,
   ConnectEsp,
   DeviceDetails,
+  FormUploadDevice,
 } from '../screens';
 import {Colors} from '../config';
 import {Button} from '../components';
@@ -36,6 +37,7 @@ type HomeStackParamList = {
   ScanQRCode: undefined;
   ConnectEsp: undefined;
   DeviceDetails: undefined;
+  FormUploadDevice: undefined;
 };
 
 type SmartStackParamList = {
@@ -156,7 +158,7 @@ function HomeStackScreen() {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-              <Text style={{textAlign: 'center'}}>Quét mã QR để kết nối</Text>
+              <Text style={{textAlign: 'center'}}>Kết nôi wifi</Text>
             </View>
           ),
         })}
@@ -166,6 +168,22 @@ function HomeStackScreen() {
         component={DeviceDetails}
         options={StackScreenOptions({
           title: NavigationScreen.ConnectEsp,
+        })}
+      />
+      <HomeStack.Screen
+        name={NavigationScreen.FormUploadDevice}
+        component={FormUploadDevice}
+        options={StackScreenOptions({
+          title: NavigationScreen.FormUploadDevice,
+          renderHeader: ({route, navigation}) => (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{textAlign: 'center'}}>Thông tin thiết bị</Text>
+            </View>
+          ),
         })}
       />
     </HomeStack.Navigator>

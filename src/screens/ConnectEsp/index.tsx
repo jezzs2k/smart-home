@@ -113,7 +113,7 @@ export const ConnectEsp = ModalLoading()(
                   </TouchableOpacity>
                 </View>
               }
-              titleHeader={'Đăng nhập'}>
+              titleHeader={'Kết nối với WIFI nhà bạn'}>
               <InputComp
                 defaultValue={values.ssid}
                 onChange={handleChange('ssid')}

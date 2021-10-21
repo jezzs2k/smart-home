@@ -4,6 +4,8 @@ import {DeviceT} from './factories/device';
 interface PayloadActionType {
   data?: DeviceT[] | null;
   error?: any;
+  deviceUploaded?: DeviceT | null;
+  deviceById?: DeviceT | null;
 }
 
 export interface AuthStateReducer extends PayloadActionType {
@@ -14,6 +16,8 @@ const initState: AuthStateReducer = {
   loading: false,
   error: null,
   data: null,
+  deviceUploaded: null,
+  deviceById: null,
 };
 
 const devicesSlice = createSlice({
@@ -33,8 +37,21 @@ const devicesSlice = createSlice({
       loading: false,
       data: null,
     }),
+    uploadDeviceSuccess: (state, action: PayloadAction<PayloadActionType>) => ({
+      ...state,
+      deviceUploaded: action.payload.deviceUploaded,
+      loading: false,
+      error: null,
+    }),
+    deviceById: (state, action: PayloadAction<PayloadActionType>) => ({
+      ...state,
+      deviceById: action.payload.deviceById,
+      loading: false,
+      error: null,
+    }),
   },
 });
 
-export const {start, reject, resolves} = devicesSlice.actions;
+export const {start, reject, resolves, uploadDeviceSuccess, deviceById} =
+  devicesSlice.actions;
 export default devicesSlice.reducer;

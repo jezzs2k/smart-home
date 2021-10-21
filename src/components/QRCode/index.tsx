@@ -6,12 +6,14 @@ import {request, PERMISSIONS} from 'react-native-permissions';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {
   NavigationProp,
+  RouteProp,
   useIsFocused,
   useNavigation,
+  useRoute,
 } from '@react-navigation/native';
-import WifiManager from 'react-native-wifi-reborn';
 import {NavigationScreen} from '../../config/NavigationScreen';
 import {IModalLoadingPassProp, ModalLoading} from '../ModalLoading';
+import {Device} from '..';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -27,6 +29,7 @@ export const ScanQrCode = ModalLoading()(
   ({indexActiveScreen = 1, onCloseLoading, onSetLoading}: ScanQRCodeProps) => {
     const isForcused = useIsFocused();
     const navigation = useNavigation<NavigationProp<any>>();
+    const route = useRoute<RouteProp<{params: {itemDevice: Device}}>>();
     const [flashOn, setFlashOn] = useState(RNCamera.Constants.FlashMode.off);
     const [scanAgain, setScanAgain] = useState(false);
 
@@ -44,6 +47,16 @@ export const ScanQrCode = ModalLoading()(
 
       ssid = newDate.ssid;
       password = newDate.password;
+
+      navigation.navigate(NavigationScreen.FormUploadDevice, {
+        itemDevice: route.params.itemDevice,
+        wifiInfo: {
+          ssid,
+          password,
+          isWep,
+        },
+        deviceId: newDate.idEsp,
+      });
       // e.data.split(';').map((item: string) => {
       //   if (item.includes('S')) {
       //     ssid = item.split('S:')[1];
@@ -54,22 +67,22 @@ export const ScanQrCode = ModalLoading()(
       //   }
       // });
 
-      WifiManager.connectToProtectedSSID(ssid, password, isWep).then(
-        () => {
-          console.log('Connected successfully!');
-          onCloseLoading();
-          console.log(newDate.idEsp);
+      // WifiManager.connectToProtectedSSID(ssid, password, isWep).then(
+      //   () => {
+      //     console.log('Connected successfully!');
+      //     onCloseLoading();
+      //     console.log(newDate.idEsp);
 
-          navigation.navigate(NavigationScreen.ConnectEsp, {
-            idEsp: newDate.idEsp,
-          });
-        },
-        () => {
-          console.log('Connection failed!');
-          onCloseLoading();
-          navigation.goBack();
-        },
-      );
+      //     navigation.navigate(NavigationScreen.ConnectEsp, {
+      //       idEsp: newDate.idEsp,
+      //     });
+      //   },
+      //   () => {
+      //     console.log('Connection failed!');
+      //     onCloseLoading();
+      //     navigation.goBack();
+      //   },
+      // );
     };
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
