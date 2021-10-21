@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Formik} from 'formik';
 import {Button, Form, InputComp} from '../../components';
 import {Colors} from '../../config';
 import {NavigationProp, useNavigation} from '@react-navigation/core';
+import { RootState, useAppDispatch } from '../../stores/stores';
+import { useSelector } from 'react-redux';
+import { registerAction } from '../../stores/factories/register';
 
 interface RegisterScreenProps {}
 
@@ -37,15 +40,26 @@ const tranferValuesObject = (obj: RegisterView): RegisterViewMode => {
 
 export const RegisterScreen = ({}: RegisterScreenProps) => {
   const navigation = useNavigation<NavigationProp<any>>();
+  const dispatch = useAppDispatch();
+
+  const {loading, data, userRegister} = useSelector((state: RootState) => state.auth);
 
   const handleSubmit = (values: RegisterView) => {
-    console.log('Right value', tranferValuesObject(values));
-    // const newForm = new
+    if (!values || !values.email || !values.password || !values.email) {
+      return;
+    }
+    dispatch(registerAction(tranferValuesObject(values)))
   };
 
   const handleToLogin = () => {
     navigation.navigate('Login');
   };
+
+  useEffect(() => {
+    if (!loading && userRegister) {
+      handleToLogin()
+    }
+  }, [userRegister, loading])
 
   return (
     <Formik initialValues={initialValues} onSubmit={handleSubmit}>
@@ -104,6 +118,7 @@ export const RegisterScreen = ({}: RegisterScreenProps) => {
             contentBtnStyle={{
               padding: 13,
             }}
+            loading={loading}
           />
         </Form>
       )}

@@ -95,6 +95,8 @@ export const ConnectEsp = ModalLoading()(
       }
 
       return () => {
+        onCloseLoading();
+        
         database()
           .ref('/' + route.params?.idEsp)
           .off();

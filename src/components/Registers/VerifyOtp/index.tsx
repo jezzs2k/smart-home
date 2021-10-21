@@ -25,7 +25,6 @@ export const VerifyOtp = ({
     setValue(value);
 
     if (value.length === 6) {
-      console.log('handle');
       handleClearInput();
     }
   };

@@ -8,7 +8,9 @@ import {
   SectionListData,
 } from 'react-native';
 import {Colors} from '../../config';
+import { KeyStogare } from '../../config/KeyStorage';
 import {NavigationScreen} from '../../config/NavigationScreen';
+import { getKey } from '../../utils';
 import {DeviceComponent} from '../DeviceComponent';
 import {ElectricSvg, FanSVG, LightBulb, OutletIcon} from '../Svgs';
 
@@ -36,8 +38,13 @@ export const ListDevice = ({}: ListDeviceDataProps) => {
     section: SectionListData<Device>;
     index: number;
   }) => {
-    const handleToScanQr = (item: Device) => {
-      navigation.navigate(NavigationScreen.ScanQRCode, {itemDevice: item});
+    const handleToScanQr = async (item: Device) => {
+      const token = await getKey(KeyStogare.Token);
+      if (token) {
+        navigation.navigate(NavigationScreen.ScanQRCode, {itemDevice: item});
+      }else {
+        navigation.navigate(NavigationScreen.Login);
+      }
     };
     const numColumns = 3;
 

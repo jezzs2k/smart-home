@@ -1,9 +1,13 @@
 import React from 'react';
-import {useNavigation} from '@react-navigation/native';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {FlatList, Text, TouchableOpacity, View} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Colors} from '../../config';
+import { resetAuth } from '../../stores/auth';
+import { useAppDispatch } from '../../stores/stores';
+import { removeKey } from '../../utils';
+import { KeyStogare } from '../../config/KeyStorage';
 
 const HeaderProfile = () => (
   <TouchableOpacity
@@ -140,12 +144,19 @@ const ListItem = () => {
 };
 
 export const SettingScreen = () => {
+  const dispatch = useAppDispatch();
+  const navigation = useNavigation<NavigationProp<any>>();
+  
   return (
     <View style={{paddingTop: 16, backgroundColor: Colors.BG, height: '100%'}}>
       <HeaderProfile />
       <ListItem />
       <TouchableOpacity
-        onPress={() => {}}
+        onPress={async () => {
+          await removeKey(KeyStogare.Token);
+          dispatch(resetAuth());
+          navigation.navigate('Home');
+        }}
         style={{
           marginVertical: 16,
           backgroundColor: '#ffffff',

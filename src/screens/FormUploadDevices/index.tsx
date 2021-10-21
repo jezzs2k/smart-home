@@ -30,6 +30,8 @@ interface LoginViewMode {
 
 const initialValues = {deviceName: ''};
 
+let isManagerWifi = false;
+
 export const FormUploadDevice = ModalLoading()(
   ({onCloseLoading, onSetLoading}: FormUploadDeviceProps) => {
     const navigation = useNavigation<NavigationProp<any>>();
@@ -103,7 +105,14 @@ export const FormUploadDevice = ModalLoading()(
     }, []);
 
     useEffect(() => {
-      if ((deviceById && !deviceById.isConnected) || !deviceById) {
+     return () => {
+       onCloseLoading();
+     }
+    }, [])
+
+    useEffect(() => {
+      if (((deviceById && !deviceById.isConnected) || !deviceById) && !isManagerWifi) {
+        isManagerWifi = true;
         handleConnectEsp();
       }
 
