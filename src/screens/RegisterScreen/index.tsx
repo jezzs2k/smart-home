@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Formik} from 'formik';
-import {Button, Form, InputComp} from '../../components';
+import {Button, Form, InputComp, ModalNotification} from '../../components';
 import {Colors} from '../../config';
 import {NavigationProp, useNavigation} from '@react-navigation/core';
 import { RootState, useAppDispatch } from '../../stores/stores';
@@ -41,8 +41,20 @@ const tranferValuesObject = (obj: RegisterView): RegisterViewMode => {
 export const RegisterScreen = ({}: RegisterScreenProps) => {
   const navigation = useNavigation<NavigationProp<any>>();
   const dispatch = useAppDispatch();
+  const [isVisible, setModalVisble] = useState(false);
 
-  const {loading, data, userRegister} = useSelector((state: RootState) => state.auth);
+  const {loading, userRegister, error} = useSelector((state: RootState) => state.auth);
+
+  const handleOpenModal = () => {
+    setModalVisble(true);
+  }
+
+  const handleSetModalVisible = (isModalVisible?: boolean) => {
+
+    const isBool = typeof isModalVisible === 'boolean' ? isModalVisible : !isVisible;
+
+    setModalVisble(isBool);
+  };
 
   const handleSubmit = (values: RegisterView) => {
     if (!values || !values.email || !values.password || !values.email) {
@@ -61,8 +73,22 @@ export const RegisterScreen = ({}: RegisterScreenProps) => {
     }
   }, [userRegister, loading])
 
+  useEffect(() => {
+    !userRegister && error && handleOpenModal();
+  }, [error])
+
   return (
-    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+    <React.Fragment>
+      <ModalNotification 
+        modalVisible={isVisible} 
+        setModalVisible={handleSetModalVisible}  
+        customTextContent={'Lỗi hệ thống làm ơn đăng ký lại !'}
+        customTextAccept={'Đồng ý'}
+        customTextTitle={'Thông báo lỗi'}
+        customTextCancel={'Đóng'} 
+      />
+
+<Formik initialValues={initialValues} onSubmit={handleSubmit}>
       {({handleChange, handleBlur, handleSubmit, values}) => (
         <Form
           renderFooter={
@@ -123,6 +149,8 @@ export const RegisterScreen = ({}: RegisterScreenProps) => {
         </Form>
       )}
     </Formik>
+    </React.Fragment>
+    
   );
 };
 

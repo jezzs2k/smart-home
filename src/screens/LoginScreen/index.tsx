@@ -1,10 +1,10 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Text, TouchableOpacity, StyleSheet, View} from 'react-native';
 import {Formik} from 'formik';
-import {Form, InputComp} from '../../components';
+import {Form, InputComp, ModalNotification} from '../../components';
 import {Button} from '../../components';
 import {Colors} from '../../config';
-import {NavigationProp, useNavigation} from '@react-navigation/core';
+import {NavigationProp, useFocusEffect, useNavigation} from '@react-navigation/core';
 import {RootState, useAppDispatch} from '../../stores/stores';
 import {login} from '../../stores/factories/login';
 import {useSelector} from 'react-redux';
@@ -24,8 +24,20 @@ const initialValues = {email: '', password: ''};
 export const LoginScreen = ({}: LoginScreenProps) => {
   const navigation = useNavigation<NavigationProp<any>>();
   const dispatch = useAppDispatch();
+  const [isVisible, setModalVisble] = useState(false);
 
-  const {loading, token} = useSelector((state: RootState) => state.auth);
+  const {loading, token, error} = useSelector((state: RootState) => state.auth);
+
+  const handleOpenModal = () => {
+    setModalVisble(true);
+  }
+
+  const handleSetModalVisible = (isModalVisible?: boolean) => {
+
+    const isBool = typeof isModalVisible === 'boolean' ? isModalVisible : !isVisible;
+
+    setModalVisble(isBool);
+  };
 
   const handleSubmit = (values: LoginViewMode) => {
     if (!values || !values.email || !values.password) {
@@ -38,6 +50,7 @@ export const LoginScreen = ({}: LoginScreenProps) => {
   const handleToRegister = () => {
     navigation.navigate(NavigationScreen.Register);
   };
+
   const handleForgotPass = () => {};
 
   const handleToken = async () => {
@@ -58,51 +71,65 @@ export const LoginScreen = ({}: LoginScreenProps) => {
     }
   }, [token]);
 
+  useEffect(() => {
+    !token && error && handleOpenModal();
+  }, [error])
+
   return (
-    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-      {({handleChange, handleBlur, handleSubmit, values}) => (
-        <Form
-          renderFooter={
-            <View style={styles.footer}>
-              <TouchableOpacity
-                style={styles.footer}
-                onPress={handleForgotPass}>
-                <Text style={styles.text}>Quên mật khẩu</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleToRegister}>
-                <Text style={styles.text}>Đăng ký</Text>
-              </TouchableOpacity>
-            </View>
-          }
-          titleHeader={'Đăng nhập'}>
-          <InputComp
-            defaultValue={values.email}
-            onChange={handleChange('email')}
-            onBlur={() => handleBlur('email')}
-            placeholder={'Vui lòng nhập tài khoản'}
-          />
-          <InputComp
-            defaultValue={values.password}
-            onChange={handleChange('password')}
-            onBlur={() => handleBlur('password')}
-            placeholder={'Mật khẩu'}
-            isSecureText={true}
-          />
-          <Button
-            isShowIcon={false}
-            title={'Xác nhận'}
-            onPress={handleSubmit}
-            containerStyle={{
-              marginTop: 30,
-            }}
-            contentBtnStyle={{
-              padding: 13,
-            }}
-            loading={loading}
-          />
-        </Form>
-      )}
-    </Formik>
+    <React.Fragment>
+      <ModalNotification 
+        modalVisible={isVisible} 
+        setModalVisible={handleSetModalVisible}  
+        customTextContent={'Lỗi hệ thống làm ơn đăng nhập lại !'}
+        customTextAccept={'Đồng ý'}
+        customTextTitle={'Thông báo lỗi'}
+        customTextCancel={'Đóng'} 
+      />
+      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+        {({handleChange, handleBlur, handleSubmit, values}) => (
+          <Form
+            renderFooter={
+              <View style={styles.footer}>
+                <TouchableOpacity
+                  style={styles.footer}
+                  onPress={handleForgotPass}>
+                  <Text style={styles.text}>Quên mật khẩu</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleToRegister}>
+                  <Text style={styles.text}>Đăng ký</Text>
+                </TouchableOpacity>
+              </View>
+            }
+            titleHeader={'Đăng nhập'}>
+            <InputComp
+              defaultValue={values.email}
+              onChange={handleChange('email')}
+              onBlur={() => handleBlur('email')}
+              placeholder={'Vui lòng nhập tài khoản'}
+            />
+            <InputComp
+              defaultValue={values.password}
+              onChange={handleChange('password')}
+              onBlur={() => handleBlur('password')}
+              placeholder={'Mật khẩu'}
+              isSecureText={true}
+            />
+            <Button
+              isShowIcon={false}
+              title={'Xác nhận'}
+              onPress={handleSubmit}
+              containerStyle={{
+                marginTop: 30,
+              }}
+              contentBtnStyle={{
+                padding: 13,
+              }}
+              loading={loading}
+            />
+          </Form>
+        )}
+      </Formik>
+    </React.Fragment>
   );
 };
 

@@ -62,7 +62,8 @@ export const DeviceDetails = ModalLoading()(
           if (e == null) {
             setIsTurnOn(!isTurnOn);
           }
-          setTimeout(onCloseLoading, 1000);
+
+          onCloseLoading();
         });
     };
 

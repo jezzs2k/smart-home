@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {FlatList, Text, TouchableOpacity, View} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Colors} from '../../config';
 import { resetAuth } from '../../stores/auth';
-import { useAppDispatch } from '../../stores/stores';
+import { RootState, useAppDispatch } from '../../stores/stores';
 import { removeKey } from '../../utils';
 import { KeyStogare } from '../../config/KeyStorage';
+import { IModalLoadingPassProp, ModalLoading } from '../../components/ModalLoading';
+import { ModalNotification } from '../../components';
+import { useSelector } from 'react-redux';
+import { NavigationScreen } from '../../config/NavigationScreen';
 
 const HeaderProfile = () => (
   <TouchableOpacity
@@ -143,20 +147,56 @@ const ListItem = () => {
   );
 };
 
-export const SettingScreen = () => {
+interface IPropsSettingScreen extends IModalLoadingPassProp {}
+
+export const SettingScreen = ModalLoading()(({onSetLoading, onCloseLoading}: IPropsSettingScreen) => {
+  const [isVisible, setModalVisble] = useState(false);
   const dispatch = useAppDispatch();
   const navigation = useNavigation<NavigationProp<any>>();
+  const {token} = useSelector((state: RootState) => state.auth)
+
+  const handleOpenModal = () => {
+    if (!token) {
+      navigation.navigate(NavigationScreen.Login);
+      return;
+    }
+    setModalVisble(true);
+  }
+
+  const handleSetModalVisible = (isModalVisible?: boolean) => {
+
+    const isBool = typeof isModalVisible === 'boolean' ? isModalVisible : !isVisible;
+
+    setModalVisble(isBool);
+  };
+
+  const handleAccept = async () => {
+    onSetLoading();
+    await removeKey(KeyStogare.Token);
+    dispatch(resetAuth());
+
+    setTimeout(() => {
+      onCloseLoading();
+      navigation.navigate(NameNavigate.Home);
+    }, 1500)
+  };
+
   
   return (
     <View style={{paddingTop: 16, backgroundColor: Colors.BG, height: '100%'}}>
+      <ModalNotification 
+        modalVisible={isVisible}
+        setModalVisible={handleSetModalVisible}
+        onAccept={handleAccept}
+        customTextContent={'Bạn có chắc chắn muốn đăng xuất khỏi hệ thống !'}
+        customTextAccept={'Đồng ý'}
+        customTextTitle={'Đăng xuất'}
+        customTextCancel={'Đóng'}
+      />
       <HeaderProfile />
       <ListItem />
       <TouchableOpacity
-        onPress={async () => {
-          await removeKey(KeyStogare.Token);
-          dispatch(resetAuth());
-          navigation.navigate('Home');
-        }}
+        onPress={handleOpenModal}
         style={{
           marginVertical: 16,
           backgroundColor: '#ffffff',
@@ -169,4 +209,4 @@ export const SettingScreen = () => {
       </TouchableOpacity>
     </View>
   );
-};
+});

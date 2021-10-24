@@ -5,4 +5,6 @@ export default {
   URL_COLOR: '#2a77a1',
   RED: 'red',
   TEXT: '#909090',
+  BLACK: '#000000',
+  WHITE: '#ffffff',
 };

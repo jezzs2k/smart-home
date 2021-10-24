@@ -34,7 +34,7 @@ export const login =
         },
       );
 
-      if (result) {
+      if (result?.data?.token) {
         await setKey(KeyStogare.Token, result.data.token);
 
         dispatch(resolves({user: result.data.user, token: result.data.token}));

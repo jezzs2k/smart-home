@@ -52,6 +52,8 @@ const authSlice = createSlice({
       loading: false,
       user: null,
       token: null,
+      data: null,
+      userRegister: null,
     }),
   },
 });

@@ -5,3 +5,4 @@ export * from './ListDeviceComp';
 export * from './Form';
 export * from './Input';
 export * from './Registers';
+export * from './Modals';
