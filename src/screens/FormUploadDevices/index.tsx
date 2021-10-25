@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {Text, TouchableOpacity, StyleSheet, View, Alert} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {Formik} from 'formik';
 import {NavigationProp, useNavigation} from '@react-navigation/core';
 import WifiManager from 'react-native-wifi-reborn';
@@ -15,6 +15,7 @@ import {
   ModalLoading,
 } from '../../components/ModalLoading';
 import {RouteProp, useRoute} from '@react-navigation/native';
+import useModalNotification from '../../Hooks/useModalNotification';
 
 interface FormUploadDeviceProps extends IModalLoadingPassProp {}
 
@@ -29,8 +30,6 @@ interface LoginViewMode {
 }
 
 const initialValues = {deviceName: ''};
-
-let isManagerWifi = false;
 
 export const FormUploadDevice = ModalLoading()(
   ({onCloseLoading, onSetLoading}: FormUploadDeviceProps) => {
@@ -66,38 +65,69 @@ export const FormUploadDevice = ModalLoading()(
     };
 
     const handleConnectEsp = () => {
+      !loading && onSetLoading();
+      console.log('ok');
+      
       WifiManager.connectToProtectedSSID(ssid, password, isWep).then(
         () => {
           console.log('Connected successfully!');
-          onCloseLoading();
+          setTimeout(() => {
+            onCloseLoading();
 
-          navigation.navigate(NavigationScreen.ConnectEsp, {
-            idEsp: deviceId,
-          });
+            WifiManager.getCurrentWifiSSID().then(
+              ssid1 => {
+                console.log("Your current connected wifi SSID is " + ssid1);
+                if (ssid1 !== ssid) {
+                  setContent2('Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại');
+                  onSetModalVisible2(true);
+                }else {
+                  navigation.navigate(NavigationScreen.ConnectEsp, {
+                    idEsp: deviceId,
+                  });
+                }
+              },
+              () => {
+                console.log("Cannot get current SSID!");
+                setContent2('Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại');
+                onSetModalVisible2(true);
+              }
+            );
+          }, 7000);
+
+          // navigation.navigate(NavigationScreen.ConnectEsp, {
+          //   idEsp: deviceId,
+          // });
         },
         () => {
-          console.log('Connection failed!');
           onCloseLoading();
-          handleShowAlert(
-            'Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại',
-          );
+          setContent2('Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại');
+          onSetModalVisible2(true);
         },
       );
     };
 
-    const handleShowAlert = (text: string) =>
-      Alert.alert('Connect Failure', text, [
-        {
-          text: 'Đóng',
-          onPress: () => {
-            navigation.navigate(NavigationScreen.Home);
-          },
-        },
-      ]);
+    const [ModalComponent, onSetModalVisible, _visible, setContent] = useModalNotification({customTextTitle: 'Kết nối ESP 8266', 
+                                                                                           customTextCancel: 'Đóng', 
+                                                                                           onCancel: () =>  navigation.navigate(NavigationScreen.Home), 
+                                                                                            isJustShowCancel: true
+                                                                                          });
+    const [ModalComponent1, onSetModalVisible1, _visible1, setContent1] = useModalNotification({customTextTitle: 'Kết nối ESP 8266', 
+                                                                                          customTextCancel: 'Đóng', 
+                                                                                          customTextAccept: 'Đồng ý',
+                                                                                          onCancel: () =>  navigation.navigate(NavigationScreen.Home), 
+                                                                                          onAccept: handleConnectEsp
+                                                                                         });
+    const [ModalComponent2, onSetModalVisible2, _visible2, setContent2] = useModalNotification({customTextTitle: 'Kết nối ESP 8266', 
+                                                                                         customTextCancel: 'Đóng', 
+                                                                                         customTextAccept: 'Kết nối lại',
+                                                                                         onCancel: () =>  navigation.navigate(NavigationScreen.Home), 
+                                                                                         onAccept: handleConnectEsp
+                                                                                        });
 
     useEffect(() => {
       if (!deviceId) {
-        handleShowAlert('Không có ID của thiết bị');
+        setContent('Không có ID của thiết bị');
+        onSetModalVisible(true);
         return;
       }
       onSetLoading();
@@ -111,51 +141,58 @@ export const FormUploadDevice = ModalLoading()(
     }, [])
 
     useEffect(() => {
-      if (((deviceById && !deviceById.isConnected) || !deviceById) && !isManagerWifi) {
-        isManagerWifi = true;
-        handleConnectEsp();
+      if (deviceById && deviceById.isConnected) {
+        setContent('Thiết bị này đã kết nối với tài khoản khác xin vui lòng kiểm tra lại');
+        onSetModalVisible(true);
       }
 
-      if (deviceById && deviceById.isConnected) {
-        handleShowAlert(
-          'Thiết bị này đã kết nối với tài khoản khác xin vui lòng kiểm tra lại',
-        );
+      if (deviceById && !deviceById.isConnected) {
+        setContent1('Kết nối với điện thoại với thiết bị ESP để thiết lập hệ thống ?');
+        onSetModalVisible1(true);
       }
+
+      onCloseLoading();
     }, [deviceById]);
 
     useEffect(() => {
       if (!loading && deviceUploaded && deviceId) {
-        handleConnectEsp();
+        setContent1('Kết nối với điện thoại với thiết bị ESP để thiết lập hệ thống ?');
+        onSetModalVisible1(true);
       }
     }, [deviceUploaded]);
 
     return (
-      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-        {({handleChange, handleBlur, handleSubmit, values}) => (
-          <Form titleHeader={'Tạo thiết bị'}>
-            <InputComp
-              defaultValue={item.title}
-              onChange={handleChange('deviceName')}
-              onBlur={() => handleBlur('deviceName')}
-              placeholder={'Vui lòng nhập tên thiết bị'}
-              errorMess={'Nhập tên thiết bị của bạn'}
-              isError={!values.deviceName}
-            />
-            <Button
-              isShowIcon={false}
-              title={'Xác nhận'}
-              onPress={handleSubmit}
-              containerStyle={{
-                marginTop: 30,
-              }}
-              contentBtnStyle={{
-                padding: 13,
-              }}
-              loading={loading}
-            />
-          </Form>
-        )}
-      </Formik>
+      <React.Fragment>
+        <ModalComponent />
+        <ModalComponent1 />
+        <ModalComponent2 />
+        <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+          {({handleChange, handleBlur, handleSubmit, values}) => (
+            <Form titleHeader={'Tạo thiết bị'}>
+              <InputComp
+                defaultValue={item.title}
+                onChange={handleChange('deviceName')}
+                onBlur={() => handleBlur('deviceName')}
+                placeholder={'Vui lòng nhập tên thiết bị'}
+                errorMess={'Nhập tên thiết bị của bạn'}
+                isError={!values.deviceName}
+              />
+              <Button
+                isShowIcon={false}
+                title={'Xác nhận'}
+                onPress={handleSubmit}
+                containerStyle={{
+                  marginTop: 30,
+                }}
+                contentBtnStyle={{
+                  padding: 13,
+                }}
+                loading={loading}
+              />
+            </Form>
+          )}
+        </Formik>
+      </React.Fragment>
     );
   },
 );

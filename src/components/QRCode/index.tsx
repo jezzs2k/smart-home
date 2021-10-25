@@ -14,6 +14,9 @@ import {
 import {NavigationScreen} from '../../config/NavigationScreen';
 import {IModalLoadingPassProp, ModalLoading} from '../ModalLoading';
 import {Device} from '..';
+import useModalNotification from '../../Hooks/useModalNotification';
+import { useAppDispatch } from '../../stores/stores';
+import { resetDevice } from '../../stores/device';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -32,6 +35,12 @@ export const ScanQrCode = ModalLoading()(
     const route = useRoute<RouteProp<{params: {itemDevice: Device}}>>();
     const [flashOn, setFlashOn] = useState(RNCamera.Constants.FlashMode.off);
     const [scanAgain, setScanAgain] = useState(false);
+    const dispatch = useAppDispatch();
+
+    const [ModalComponent, onSetModalVisible, visible, setContent] = useModalNotification({customTextTitle: 'Kết nối ESP 8266', 
+                                                                                           customTextCancel: 'Đóng', 
+                                                                                           onCancel: () =>  navigation.navigate(NavigationScreen.Home), 
+                                                                                          });
 
     const onSuccess = (e: any) => {
       //QR TYPE: {"ssid":"SMART_HOME_ESP8266","password":"11111111","idEsp":"36d57abd-7e84-4079-afc0-cc9693a6dd90"}
@@ -57,32 +66,6 @@ export const ScanQrCode = ModalLoading()(
         },
         deviceId: newDate.idEsp,
       });
-      // e.data.split(';').map((item: string) => {
-      //   if (item.includes('S')) {
-      //     ssid = item.split('S:')[1];
-      //   }
-
-      //   if (item.includes('P')) {
-      //     password = item.split('P:')[1];
-      //   }
-      // });
-
-      // WifiManager.connectToProtectedSSID(ssid, password, isWep).then(
-      //   () => {
-      //     console.log('Connected successfully!');
-      //     onCloseLoading();
-      //     console.log(newDate.idEsp);
-
-      //     navigation.navigate(NavigationScreen.ConnectEsp, {
-      //       idEsp: newDate.idEsp,
-      //     });
-      //   },
-      //   () => {
-      //     console.log('Connection failed!');
-      //     onCloseLoading();
-      //     navigation.goBack();
-      //   },
-      // );
     };
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -117,10 +100,9 @@ export const ScanQrCode = ModalLoading()(
     };
 
     useEffect(() => {
+      dispatch(resetDevice());
       request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION).then(result => {
         console.log('result', result);
-
-        // …
       });
     }, []);
 
@@ -184,44 +166,47 @@ export const ScanQrCode = ModalLoading()(
     };
 
     return (
-      <QRCodeScanner
-        cameraStyle={{
-          height: Dimensions.get('window').height,
-        }}
-        reactivate={scanAgain}
-        onRead={onSuccess}
-        cameraType={'back'}
-        showMarker
-        customMarker={
-          <View style={styles.rectangleContainer}>
-            <View style={styles.topOverlay} />
+      <React.Fragment>
+        <ModalComponent />
+        <QRCodeScanner
+          cameraStyle={{
+            height: Dimensions.get('window').height,
+          }}
+          reactivate={scanAgain}
+          onRead={onSuccess}
+          cameraType={'back'}
+          showMarker
+          customMarker={
+            <View style={styles.rectangleContainer}>
+              <View style={styles.topOverlay} />
 
-            <View style={{flexDirection: 'row'}}>
-              <View style={styles.leftAndRightOverlay} />
+              <View style={{flexDirection: 'row'}}>
+                <View style={styles.leftAndRightOverlay} />
 
-              <View style={styles.rectangle}>
-                <Icon
-                  name="ios-scan-outline"
-                  size={SCREEN_WIDTH * 0.7}
-                  color={iconScanColor}
-                />
-                <Animated.View
-                  style={[
-                    styles.scanBar,
-                    {
-                      transform: [{translateY: fadeAnim}],
-                    },
-                  ]}
-                />
+                <View style={styles.rectangle}>
+                  <Icon
+                    name="ios-scan-outline"
+                    size={SCREEN_WIDTH * 0.7}
+                    color={iconScanColor}
+                  />
+                  <Animated.View
+                    style={[
+                      styles.scanBar,
+                      {
+                        transform: [{translateY: fadeAnim}],
+                      },
+                    ]}
+                  />
+                </View>
+
+                <View style={styles.leftAndRightOverlay} />
               </View>
 
-              <View style={styles.leftAndRightOverlay} />
+              <View style={styles.bottomOverlay} />
             </View>
-
-            <View style={styles.bottomOverlay} />
-          </View>
-        }
-      />
+          }
+        />
+      </React.Fragment>
     );
   },
 );

@@ -49,9 +49,22 @@ const devicesSlice = createSlice({
       loading: false,
       error: null,
     }),
+    resetDevice: state => ({
+      ...state,
+      deviceById: null,
+      deviceUploaded: null,
+      loading: false,
+      error: null,
+    }),
   },
 });
 
-export const {start, reject, resolves, uploadDeviceSuccess, deviceById} =
-  devicesSlice.actions;
+export const {
+  start,
+  reject,
+  resolves,
+  uploadDeviceSuccess,
+  deviceById,
+  resetDevice,
+} = devicesSlice.actions;
 export default devicesSlice.reducer;

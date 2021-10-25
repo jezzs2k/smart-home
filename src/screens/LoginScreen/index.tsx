@@ -11,6 +11,7 @@ import {useSelector} from 'react-redux';
 import {NavigationScreen} from '../../config/NavigationScreen';
 import {getKey} from '../../utils';
 import {KeyStogare} from '../../config/KeyStorage';
+import useModalNotification from '../../Hooks/useModalNotification';
 
 interface LoginScreenProps {}
 
@@ -24,20 +25,18 @@ const initialValues = {email: '', password: ''};
 export const LoginScreen = ({}: LoginScreenProps) => {
   const navigation = useNavigation<NavigationProp<any>>();
   const dispatch = useAppDispatch();
-  const [isVisible, setModalVisble] = useState(false);
-
   const {loading, token, error} = useSelector((state: RootState) => state.auth);
 
+  const [ModalComponent, onSetModalVisible,] = useModalNotification({
+                                                                      customTextContent:'Lỗi hệ thống làm ơn đăng nhập lại !',
+                                                                      customTextAccept:'Đồng ý',
+                                                                      customTextTitle:'Thông báo lỗi',
+                                                                      customTextCancel:'Đóng', 
+                                                                    });
+
   const handleOpenModal = () => {
-    setModalVisble(true);
+    onSetModalVisible(true);
   }
-
-  const handleSetModalVisible = (isModalVisible?: boolean) => {
-
-    const isBool = typeof isModalVisible === 'boolean' ? isModalVisible : !isVisible;
-
-    setModalVisble(isBool);
-  };
 
   const handleSubmit = (values: LoginViewMode) => {
     if (!values || !values.email || !values.password) {
@@ -77,14 +76,7 @@ export const LoginScreen = ({}: LoginScreenProps) => {
 
   return (
     <React.Fragment>
-      <ModalNotification 
-        modalVisible={isVisible} 
-        setModalVisible={handleSetModalVisible}  
-        customTextContent={'Lỗi hệ thống làm ơn đăng nhập lại !'}
-        customTextAccept={'Đồng ý'}
-        customTextTitle={'Thông báo lỗi'}
-        customTextCancel={'Đóng'} 
-      />
+      <ModalComponent />
       <Formik initialValues={initialValues} onSubmit={handleSubmit}>
         {({handleChange, handleBlur, handleSubmit, values}) => (
           <Form

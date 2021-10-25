@@ -55,15 +55,12 @@ export const DeviceDetails = ModalLoading()(
     const handleBack = () => navigation.goBack();
 
     const handleTurnOne = () => {
-      onSetLoading();
       database()
         .ref('/' + itemDevice.deviceId)
         .set({...dataFirebase, isTurnOn: String(!isTurnOn)}, e => {
           if (e == null) {
             setIsTurnOn(!isTurnOn);
           }
-
-          onCloseLoading();
         });
     };
 

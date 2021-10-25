@@ -7,6 +7,7 @@ import {NavigationProp, useNavigation} from '@react-navigation/core';
 import { RootState, useAppDispatch } from '../../stores/stores';
 import { useSelector } from 'react-redux';
 import { registerAction } from '../../stores/factories/register';
+import useModalNotification from '../../Hooks/useModalNotification';
 
 interface RegisterScreenProps {}
 
@@ -41,20 +42,17 @@ const tranferValuesObject = (obj: RegisterView): RegisterViewMode => {
 export const RegisterScreen = ({}: RegisterScreenProps) => {
   const navigation = useNavigation<NavigationProp<any>>();
   const dispatch = useAppDispatch();
-  const [isVisible, setModalVisble] = useState(false);
+
+  const [ModalComponent, onSetModalVisible] = useModalNotification({ customTextContent:'Lỗi hệ thống làm ơn đăng ký lại !',
+  customTextAccept:'Đồng ý',
+  customTextTitle:'Thông báo lỗi',
+  customTextCancel:'Đóng', });
 
   const {loading, userRegister, error} = useSelector((state: RootState) => state.auth);
 
   const handleOpenModal = () => {
-    setModalVisble(true);
+    onSetModalVisible(true);
   }
-
-  const handleSetModalVisible = (isModalVisible?: boolean) => {
-
-    const isBool = typeof isModalVisible === 'boolean' ? isModalVisible : !isVisible;
-
-    setModalVisble(isBool);
-  };
 
   const handleSubmit = (values: RegisterView) => {
     if (!values || !values.email || !values.password || !values.email) {
@@ -79,76 +77,68 @@ export const RegisterScreen = ({}: RegisterScreenProps) => {
 
   return (
     <React.Fragment>
-      <ModalNotification 
-        modalVisible={isVisible} 
-        setModalVisible={handleSetModalVisible}  
-        customTextContent={'Lỗi hệ thống làm ơn đăng ký lại !'}
-        customTextAccept={'Đồng ý'}
-        customTextTitle={'Thông báo lỗi'}
-        customTextCancel={'Đóng'} 
-      />
-
-<Formik initialValues={initialValues} onSubmit={handleSubmit}>
-      {({handleChange, handleBlur, handleSubmit, values}) => (
-        <Form
-          renderFooter={
-            <View style={styles.footer}>
-              <TouchableOpacity onPress={handleToLogin}>
-                <Text>
-                  Nếu bạn đã có tài khoản,{' '}
-                  <Text style={styles.text}>Đăng nhập</Text>
-                </Text>
-              </TouchableOpacity>
-            </View>
-          }
-          titleHeader={'Đăng ký'}>
-          <InputComp
-            defaultValue={values.email}
-            onChange={handleChange('email')}
-            onBlur={() => handleBlur('email')}
-            placeholder={'Vui lòng nhập emal'}
-          />
-          <InputComp
-            defaultValue={values.username}
-            onChange={handleChange('username')}
-            onBlur={() => handleBlur('username')}
-            placeholder={'Vui lòng nhập tên tài khoản'}
-          />
-          <InputComp
-            defaultValue={values.password}
-            onChange={handleChange('password')}
-            onBlur={() => handleBlur('password')}
-            placeholder={'Mật khẩu'}
-            isSecureText={true}
-          />
-          <InputComp
-            defaultValue={values.re_password}
-            onChange={handleChange('re_password')}
-            onBlur={() => handleBlur('re_password')}
-            placeholder={'Nhập lại Mật khẩu'}
-            isSecureText={true}
-            isError={
-              !!values.password &&
-              !!values.re_password &&
-              values.password !== values.re_password
+      <ModalComponent />
+      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+        {({handleChange, handleBlur, handleSubmit, values}) => (
+          <Form
+            renderFooter={
+              <View style={styles.footer}>
+                <TouchableOpacity onPress={handleToLogin}>
+                  <Text>
+                    Nếu bạn đã có tài khoản,{' '}
+                    <Text style={styles.text}>Đăng nhập</Text>
+                  </Text>
+                </TouchableOpacity>
+              </View>
             }
-            errorMess={'Mật khẩu nhập không khớp !'}
-          />
-          <Button
-            isShowIcon={false}
-            title={'Xác nhận'}
-            onPress={handleSubmit}
-            containerStyle={{
-              marginTop: 30,
-            }}
-            contentBtnStyle={{
-              padding: 13,
-            }}
-            loading={loading}
-          />
-        </Form>
-      )}
-    </Formik>
+            titleHeader={'Đăng ký'}>
+            <InputComp
+              defaultValue={values.email}
+              onChange={handleChange('email')}
+              onBlur={() => handleBlur('email')}
+              placeholder={'Vui lòng nhập emal'}
+            />
+            <InputComp
+              defaultValue={values.username}
+              onChange={handleChange('username')}
+              onBlur={() => handleBlur('username')}
+              placeholder={'Vui lòng nhập tên tài khoản'}
+            />
+            <InputComp
+              defaultValue={values.password}
+              onChange={handleChange('password')}
+              onBlur={() => handleBlur('password')}
+              placeholder={'Mật khẩu'}
+              isSecureText={true}
+            />
+            <InputComp
+              defaultValue={values.re_password}
+              onChange={handleChange('re_password')}
+              onBlur={() => handleBlur('re_password')}
+              placeholder={'Nhập lại Mật khẩu'}
+              isSecureText={true}
+              isError={
+                !!values.password &&
+                !!values.re_password &&
+                values.password !== values.re_password
+              }
+              errorMess={'Mật khẩu nhập không khớp !'}
+            />
+            <Button
+              isShowIcon={false}
+              title={'Xác nhận'}
+              onPress={handleSubmit}
+              containerStyle={{
+                marginTop: 30,
+              }}
+              contentBtnStyle={{
+                padding: 13,
+              }}
+              loading={loading}
+            />
+          </Form>
+        )}
+      </Formik>
     </React.Fragment>
     
   );

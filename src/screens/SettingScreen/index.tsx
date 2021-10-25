@@ -12,6 +12,7 @@ import { IModalLoadingPassProp, ModalLoading } from '../../components/ModalLoadi
 import { ModalNotification } from '../../components';
 import { useSelector } from 'react-redux';
 import { NavigationScreen } from '../../config/NavigationScreen';
+import useModalNotification from '../../Hooks/useModalNotification';
 
 const HeaderProfile = () => (
   <TouchableOpacity
@@ -150,7 +151,7 @@ const ListItem = () => {
 interface IPropsSettingScreen extends IModalLoadingPassProp {}
 
 export const SettingScreen = ModalLoading()(({onSetLoading, onCloseLoading}: IPropsSettingScreen) => {
-  const [isVisible, setModalVisble] = useState(false);
+  
   const dispatch = useAppDispatch();
   const navigation = useNavigation<NavigationProp<any>>();
   const {token} = useSelector((state: RootState) => state.auth)
@@ -160,15 +161,8 @@ export const SettingScreen = ModalLoading()(({onSetLoading, onCloseLoading}: IPr
       navigation.navigate(NavigationScreen.Login);
       return;
     }
-    setModalVisble(true);
+    onSetModalVisible();
   }
-
-  const handleSetModalVisible = (isModalVisible?: boolean) => {
-
-    const isBool = typeof isModalVisible === 'boolean' ? isModalVisible : !isVisible;
-
-    setModalVisble(isBool);
-  };
 
   const handleAccept = async () => {
     onSetLoading();
@@ -181,18 +175,16 @@ export const SettingScreen = ModalLoading()(({onSetLoading, onCloseLoading}: IPr
     }, 1500)
   };
 
+  const [ModalComponent, onSetModalVisible] = useModalNotification({ onAccept: handleAccept,
+    customTextContent:'Bạn có chắc chắn muốn đăng xuất khỏi hệ thống !',
+    customTextAccept:'Đồng ý',
+    customTextTitle:'Đăng xuất',
+    customTextCancel:'Đóng',});
+
   
   return (
     <View style={{paddingTop: 16, backgroundColor: Colors.BG, height: '100%'}}>
-      <ModalNotification 
-        modalVisible={isVisible}
-        setModalVisible={handleSetModalVisible}
-        onAccept={handleAccept}
-        customTextContent={'Bạn có chắc chắn muốn đăng xuất khỏi hệ thống !'}
-        customTextAccept={'Đồng ý'}
-        customTextTitle={'Đăng xuất'}
-        customTextCancel={'Đóng'}
-      />
+      <ModalComponent />
       <HeaderProfile />
       <ListItem />
       <TouchableOpacity

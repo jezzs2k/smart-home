@@ -10,6 +10,7 @@ interface IPropsModalNotification {
     customTextContent?: string;
     customTextCancel?: string;
     customTextAccept?: string;
+    isJustShowCancel?: boolean;
 
     onAccept?: () => void;
     onCancel?: () => void;
@@ -23,6 +24,8 @@ export const ModalNotification = ({
         customTextContent= '', 
         customTextCancel= 'Cancel', 
         customTextAccept='Accept', 
+        isJustShowCancel = false,
+
         setModalVisible, 
         onCancel, 
         onAccept
@@ -58,13 +61,13 @@ export const ModalNotification = ({
                                     color: Colors.RED,
                                 }}>{customTextCancel}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
+                            {!isJustShowCancel && <TouchableOpacity
                                 onPress={handleAccept}
                                 style={styles.buttonDelete}>
                                 <Text style={{
                                     color: Colors.primary,
                                 }}>{customTextAccept}</Text>
-                            </TouchableOpacity>
+                            </TouchableOpacity>}
                         </View>
                     </View>
                 </View>

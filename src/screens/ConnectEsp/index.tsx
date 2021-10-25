@@ -1,6 +1,7 @@
 import {Formik} from 'formik';
-import React, {useEffect, useState} from 'react';
-import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useEffect} from 'react';
+import WifiManager from 'react-native-wifi-reborn';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import database from '@react-native-firebase/database';
 
 import {Button, Form, InputComp} from '../../components';
@@ -16,6 +17,7 @@ import {
   useRoute,
 } from '@react-navigation/core';
 import {NavigationScreen} from '../../config/NavigationScreen';
+import useModalNotification from '../../Hooks/useModalNotification';
 
 interface WifiT {
   ssid: string;
@@ -27,10 +29,15 @@ interface ConnectEspProps extends IModalLoadingPassProp {}
 const initialValues = {ssid: '', password: ''};
 
 let dataRealTime = null;
+let count = 0;
 
 export const ConnectEsp = ModalLoading()(
   ({onSetLoading, onCloseLoading, loading}: ConnectEspProps) => {
-    const [isShowModal, setShowModal] = useState(false);
+    const [ModalComponent, onSetModalVisible, _visible, setContent] = useModalNotification({customTextTitle: 'Kết nối ESP 8266', 
+                                                                                           customTextCancel: 'Đóng', 
+                                                                                           onCancel: () =>  navigation.navigate(NavigationScreen.Home), 
+                                                                                           isJustShowCancel: true
+                                                                                          });
 
     const route = useRoute<RouteProp<{params: {idEsp: string}}>>();
     const navigation = useNavigation<NavigationProp<any>>();
@@ -49,10 +56,10 @@ export const ConnectEsp = ModalLoading()(
             if (loading) {
               onCloseLoading();
             }
-          }, 10000);
+          }, 3000);
         });
     };
-
+    
     useEffect(() => {
       if (route.params?.idEsp) {
         database()
@@ -64,39 +71,17 @@ export const ConnectEsp = ModalLoading()(
             onCloseLoading();
 
             if (data.isConnected) {
-              Alert.alert(
-                'Connect Success',
-                'Please check your internet connection then try again!',
-                [
-                  {
-                    text: 'Đóng',
-                    onPress: () => {
-                      navigation.navigate(NavigationScreen.Home);
-                    },
-                  },
-                ],
-              );
+              setContent('Thiết bị của bạn đã được kết nối thành công!')
             } else {
-              Alert.alert(
-                'Connect Failed',
-                'Please check your internet connection then try again!',
-                [
-                  {
-                    text: 'Đóng',
-                    onPress: () => {
-                      navigation.navigate(NavigationScreen.Home);
-                    },
-                  },
-                ],
-              );
+              setContent('Vui lòng kiểm tra lại internet của bạn và kết nối lại!');
             }
-            // setShowModal(true);
+
+            onSetModalVisible(true);
           });
       }
 
       return () => {
         onCloseLoading();
-        
         database()
           .ref('/' + route.params?.idEsp)
           .off();
@@ -105,6 +90,7 @@ export const ConnectEsp = ModalLoading()(
 
     return (
       <View style={styles.container}>
+        <ModalComponent />
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
           {({handleChange, handleBlur, handleSubmit, values}) => (
             <Form
