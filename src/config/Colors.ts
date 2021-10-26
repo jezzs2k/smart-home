@@ -5,6 +5,9 @@ export default {
   URL_COLOR: '#2a77a1',
   RED: 'red',
   TEXT: '#909090',
+  TEXT1: '#6b6a6a',
   BLACK: '#000000',
   WHITE: '#ffffff',
+  BORDER: '#cfcfcf',
+  LIGHT_RED: '#e67c73',
 };

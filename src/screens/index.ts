@@ -8,3 +8,4 @@ export * from './RegisterScreen';
 export * from './ConnectEsp';
 export * from './DeviceDetails';
 export * from './FormUploadDevices';
+export * from './DeviceDetailWatt';

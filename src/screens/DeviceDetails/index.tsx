@@ -23,6 +23,7 @@ import {
   IModalLoadingPassProp,
   ModalLoading,
 } from '../../components/ModalLoading';
+import { NavigationScreen } from '../../config/NavigationScreen';
 
 const OnImage = require('../../assets/images/power-off.png');
 const OffImage = require('../../assets/images/power-on.png');
@@ -53,6 +54,8 @@ export const DeviceDetails = ModalLoading()(
     const navigation = useNavigation<NavigationProp<any>>();
 
     const handleBack = () => navigation.goBack();
+
+    const handleToDetailWatt = () => navigation.navigate(NavigationScreen.DeviceDetailsWatt);
 
     const handleTurnOne = () => {
       database()
@@ -124,6 +127,12 @@ export const DeviceDetails = ModalLoading()(
                 <Text style={[styles.text, styles.textSmall]}>
                   {item.value}
                 </Text>
+               {item.title === 'Lượng điện tiêu thụ: ' &&  <TouchableOpacity style={styles.timeCount} onPress={handleToDetailWatt}>
+                  <Text style={[styles.text, styles.textSmall2, styles.textLink]}>
+                    {'Xem chi tiết'}
+                  </Text>
+                  <AntDesign name={'arrowright'} size={22} color={Colors.primary} />
+                </TouchableOpacity>}
               </View>
             )}
             ListFooterComponent={
@@ -155,7 +164,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footer: {
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.WHITE,
     height: '60%',
     width: '100%',
     position: 'absolute',
@@ -177,7 +186,11 @@ const styles = StyleSheet.create({
     marginTop: 52,
     position: 'absolute',
   },
-  backBtnStyle: {backgroundColor: '#fff', height: 40, width: 40},
+  backBtnStyle: {
+    backgroundColor: Colors.WHITE, 
+    height: 40, 
+    width: 40
+  },
   image: {
     width: 100,
     height: 100,
@@ -196,13 +209,17 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   text: {
-    fontSize: 18,
+    fontSize: 16,
+    color: Colors.TEXT1
   },
   textBold: {
     fontWeight: '700',
   },
   textSmall: {
     fontSize: 16,
+  },
+  textSmall2: {
+    fontSize: 14,
   },
   timeCount: {
     paddingHorizontal: 22,

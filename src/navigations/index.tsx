@@ -22,6 +22,7 @@ import {
   ConnectEsp,
   DeviceDetails,
   FormUploadDevice,
+  DeviceDetailsWatt,
 } from '../screens';
 import {Colors} from '../config';
 import {Button} from '../components';
@@ -38,6 +39,7 @@ type HomeStackParamList = {
   ConnectEsp: undefined;
   DeviceDetails: undefined;
   FormUploadDevice: undefined;
+  DeviceDetailsWatt: undefined;
 };
 
 type SmartStackParamList = {
@@ -166,6 +168,13 @@ function HomeStackScreen() {
       <HomeStack.Screen
         name={NavigationScreen.DeviceDetails}
         component={DeviceDetails}
+        options={StackScreenOptions({
+          title: NavigationScreen.ConnectEsp,
+        })}
+      />
+      <HomeStack.Screen
+        name={NavigationScreen.DeviceDetailsWatt}
+        component={DeviceDetailsWatt}
         options={StackScreenOptions({
           title: NavigationScreen.ConnectEsp,
         })}
