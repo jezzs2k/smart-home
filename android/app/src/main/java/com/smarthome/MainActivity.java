@@ -1,4 +1,4 @@
-package com.smarthome;
+package com.smarthome.iot.hhc;
 
 import android.os.Bundle; 
 import com.facebook.react.ReactActivity;
