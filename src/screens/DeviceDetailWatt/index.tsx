@@ -1,8 +1,6 @@
 import {
     NavigationProp,
-    RouteProp,
     useNavigation,
-    useRoute,
   } from '@react-navigation/native';
   import AntDesign from 'react-native-vector-icons/AntDesign';
   import React, {useEffect, useState} from 'react';
@@ -88,12 +86,7 @@ const RenderItem = ({title, value, unit, index}: RenderItemT) => {
                 setTestW((t) => t + ((test+1) / WAT_DEFAULT));
                 setTest((t) => t+1);
             }, 1000)
-
-           
         }, [])
-
-     
-      
   
       return (
         <View style={styles.container}>

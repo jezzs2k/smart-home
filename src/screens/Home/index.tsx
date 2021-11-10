@@ -55,14 +55,6 @@ export const HomeScreen = ModalLoading()(
       isFocused && dispatch(getDevices());
     }, [isFocused]);
 
-    useEffect(() => {
-      database()
-        .ref('/36d57abd-7e84-4079-afc0-cc9693a6dd90')
-        .once('value')
-        .then(snapshot => {
-          console.log('User data: ', snapshot.val());
-        });
-    }, []);
 
     useEffect(() => {
       if (loading && !data) {
