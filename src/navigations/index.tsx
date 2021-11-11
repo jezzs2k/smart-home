@@ -23,6 +23,7 @@ import {
   DeviceDetails,
   FormUploadDevice,
   DeviceDetailsWatt,
+  AlarmTimes,
 } from '../screens';
 import {Colors} from '../config';
 import {Button} from '../components';
@@ -40,6 +41,7 @@ type HomeStackParamList = {
   DeviceDetails: undefined;
   FormUploadDevice: undefined;
   DeviceDetailsWatt: undefined;
+  AlarmTimes: undefined;
 };
 
 type SmartStackParamList = {
@@ -191,6 +193,22 @@ function HomeStackScreen() {
                 justifyContent: 'center',
               }}>
               <Text style={{textAlign: 'center'}}>Thông tin thiết bị</Text>
+            </View>
+          ),
+        })}
+      />
+      <HomeStack.Screen
+        name={NavigationScreen.AlarmTimes}
+        component={AlarmTimes}
+        options={StackScreenOptions({
+          title: NavigationScreen.AlarmTimes,
+          renderHeader: ({route, navigation}) => (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{textAlign: 'center'}}>Hẹn giờ bật/tắt</Text>
             </View>
           ),
         })}

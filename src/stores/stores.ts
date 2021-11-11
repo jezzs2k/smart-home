@@ -15,12 +15,14 @@ import {
 
 import authReducer from './auth';
 import deviceReducer from './device';
+import userReducer from './user';
 
 export type RootState = ReturnType<typeof store.getState>;
 
 const reducer = combineReducers({
   auth: authReducer,
   device: deviceReducer,
+  user: userReducer,
 });
 
 const persistConfig = {

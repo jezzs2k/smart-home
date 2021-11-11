@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
+import {FlatList, Platform, StyleSheet, View} from 'react-native';
 import {
   NavigationProp,
   useFocusEffect,
@@ -7,6 +7,8 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import database from '@react-native-firebase/database';
+import PushNotification, {Importance} from 'react-native-push-notification';
+import messaging from '@react-native-firebase/messaging';
 
 import {
   Button,
@@ -23,6 +25,9 @@ import {RootState, useAppDispatch} from '../../stores/stores';
 import {AuthStateReducer, start} from '../../stores/auth';
 import {NavigationScreen} from '../../config/NavigationScreen';
 import {DeviceT, getDevices} from '../../stores/factories/device';
+import {getKey, setKey} from '../../utils';
+import {KeyStogare} from '../../config/KeyStorage';
+import {updateUsers} from '../../stores/factories/user';
 
 interface HomeProps {
   loading: boolean;
@@ -39,7 +44,6 @@ export const HomeScreen = ModalLoading()(
     const dispatch = useAppDispatch();
 
     const handleAddDevices = () => {
-      //Navigation
       navigation.navigate(NavigationScreen.AddDevice);
     };
 
@@ -52,9 +56,65 @@ export const HomeScreen = ModalLoading()(
     };
 
     useEffect(() => {
+      const unsubscribe = messaging().onMessage(async remoteMessage => {
+        console.log(
+          'A new FCM message arrived!',
+          JSON.stringify(remoteMessage),
+        );
+      });
+
+      return unsubscribe;
+    }, []);
+
+    useEffect(() => {
+      PushNotification.configure({
+        onRegister: async function (token) {
+          const tokenSaved = await getKey(KeyStogare.DEVICE_TOKEN);
+
+          if (!tokenSaved) {
+            await setKey(KeyStogare.DEVICE_TOKEN, token.token);
+            dispatch(updateUsers({deviceToken: token.token}));
+          }
+        },
+
+        onNotification: function (notification) {
+          console.log('NOTIFICATION:', notification);
+        },
+
+        onAction: function (notification) {},
+
+        onRegistrationError: function (err) {
+          console.error(err.message, err);
+        },
+
+        permissions: {
+          alert: true,
+          badge: true,
+          sound: true,
+        },
+
+        popInitialNotification: true,
+
+        requestPermissions: true,
+      });
+
+      // PushNotification.createChannel(
+      //   {
+      //     channelId: 'local-channel',
+      //     channelName: 'My channel',
+      //     channelDescription: 'A channel to categorise your notifications',
+      //     playSound: false,
+      //     soundName: 'default',
+      //     importance: Importance.HIGH,
+      //     vibrate: true,
+      //   },
+      //   created => null,
+      // );
+    }, []);
+
+    useEffect(() => {
       isFocused && dispatch(getDevices());
     }, [isFocused]);
-
 
     useEffect(() => {
       if (loading && !data) {

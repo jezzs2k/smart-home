@@ -23,7 +23,7 @@ import {
   IModalLoadingPassProp,
   ModalLoading,
 } from '../../components/ModalLoading';
-import { NavigationScreen } from '../../config/NavigationScreen';
+import {NavigationScreen} from '../../config/NavigationScreen';
 
 const OnImage = require('../../assets/images/power-off.png');
 const OffImage = require('../../assets/images/power-on.png');
@@ -55,7 +55,8 @@ export const DeviceDetails = ModalLoading()(
 
     const handleBack = () => navigation.goBack();
 
-    const handleToDetailWatt = () => navigation.navigate(NavigationScreen.DeviceDetailsWatt);
+    const handleToDetailWatt = () =>
+      navigation.navigate(NavigationScreen.DeviceDetailsWatt);
 
     const handleTurnOne = () => {
       database()
@@ -65,6 +66,12 @@ export const DeviceDetails = ModalLoading()(
             setIsTurnOn(!isTurnOn);
           }
         });
+    };
+
+    const handleNavigateToOnOff = () => {
+      navigation.navigate(NavigationScreen.AlarmTimes, {
+        device: itemDevice,
+      });
     };
 
     useEffect(() => {
@@ -127,12 +134,21 @@ export const DeviceDetails = ModalLoading()(
                 <Text style={[styles.text, styles.textSmall]}>
                   {item.value}
                 </Text>
-               {item.title === 'Lượng điện tiêu thụ: ' &&  <TouchableOpacity style={styles.timeCount} onPress={handleToDetailWatt}>
-                  <Text style={[styles.text, styles.textSmall2, styles.textLink]}>
-                    {'Xem chi tiết'}
-                  </Text>
-                  <AntDesign name={'arrowright'} size={22} color={Colors.primary} />
-                </TouchableOpacity>}
+                {item.title === 'Lượng điện tiêu thụ: ' && (
+                  <TouchableOpacity
+                    style={styles.timeCount}
+                    onPress={handleToDetailWatt}>
+                    <Text
+                      style={[styles.text, styles.textSmall2, styles.textLink]}>
+                      {'Xem chi tiết'}
+                    </Text>
+                    <AntDesign
+                      name={'arrowright'}
+                      size={22}
+                      color={Colors.primary}
+                    />
+                  </TouchableOpacity>
+                )}
               </View>
             )}
             ListFooterComponent={
@@ -141,7 +157,9 @@ export const DeviceDetails = ModalLoading()(
               </Text>
             }
           />
-          <TouchableOpacity style={styles.timeCount}>
+          <TouchableOpacity
+            style={styles.timeCount}
+            onPress={handleNavigateToOnOff}>
             <Text style={[styles.text, styles.textSmall, styles.textLink]}>
               {'Cài đặt thời gian bật/tắt'}
             </Text>
@@ -187,9 +205,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   backBtnStyle: {
-    backgroundColor: Colors.WHITE, 
-    height: 40, 
-    width: 40
+    backgroundColor: Colors.WHITE,
+    height: 40,
+    width: 40,
   },
   image: {
     width: 100,
@@ -210,7 +228,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    color: Colors.TEXT1
+    color: Colors.TEXT1,
   },
   textBold: {
     fontWeight: '700',

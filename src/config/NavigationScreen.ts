@@ -9,4 +9,5 @@ export enum NavigationScreen {
   DeviceDetails = 'DeviceDetails',
   DeviceDetailsWatt = 'DeviceDetailsWatt',
   FormUploadDevice = 'FormUploadDevice',
+  AlarmTimes = 'AlarmTimes',
 }

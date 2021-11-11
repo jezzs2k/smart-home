@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -7,6 +7,7 @@ import {
   TextStyle,
   ViewStyle,
   Text,
+  KeyboardTypeOptions,
 } from 'react-native';
 import {Colors, RADIUS_DEFAULT_INPUT_BTN} from '../../config';
 import useDebounce from '../../Hooks/useDebounce';
@@ -19,7 +20,12 @@ interface InputProps {
   isSecureText?: boolean;
   isError?: boolean;
   errorMess?: string;
+  label?: string;
+  containerLabelStyle?: StyleProp<ViewStyle>;
+  labelStyle?: StyleProp<TextStyle>;
+  keyboardType?: KeyboardTypeOptions;
 
+  onConditionsValue?: (value: string) => string;
   onChange: (value: string) => void;
   onBlur?: () => void;
 }
@@ -27,12 +33,17 @@ interface InputProps {
 export const InputComp = ({
   defaultValue = '',
   placeholder = '',
+  label = '',
+  keyboardType = 'default',
   inputStyle = {},
   containerStyle = {},
+  containerLabelStyle = {},
+  labelStyle = {},
   isSecureText = false,
   isError = false,
   errorMess = '',
 
+  onConditionsValue,
   onChange,
   onBlur,
 }: InputProps) => {
@@ -40,7 +51,12 @@ export const InputComp = ({
 
   useDebounce(
     () => {
-      onChange(value);
+      if (onConditionsValue) {
+        setValue(onConditionsValue(value));
+        onChange(onConditionsValue(value));
+      } else {
+        onChange(value);
+      }
     },
     200,
     [value],
@@ -66,7 +82,13 @@ export const InputComp = ({
         onBlur={handleBlur}
         placeholder={placeholder}
         secureTextEntry={isSecureText}
+        keyboardType={keyboardType ?? 'default'}
       />
+      {!!label && (
+        <View style={[containerLabelStyle]}>
+          <Text style={[styles.label, labelStyle]}>{label}</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -89,5 +111,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.RED,
     marginBottom: 5,
+  },
+  label: {
+    fontWeight: '700',
+    color: Colors.TEXT1,
   },
 });
