@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ImageBackground,
+} from 'react-native';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import CountDown from 'react-native-countdown-component';
 import PushNotification from 'react-native-push-notification';
@@ -16,6 +23,8 @@ import useModalNotification from '../../Hooks/useModalNotification';
 import useTimeout from '../../Hooks/useTimeout';
 import {Button, InputComp} from '../../components';
 import useToggle from '../../Hooks/useToggle';
+
+const BG = require('../../assets/images/bg.png');
 
 interface AlarmTimesProps {}
 
@@ -108,13 +117,13 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
   };
 
   return isHasCountTime ? (
-    <View style={styles.container}>
+    <ImageBackground source={BG} style={styles.container}>
       <ModalComponent />
       <Text
         style={{
           fontWeight: '700',
           fontSize: 22,
-          color: Colors.TEXT1,
+          color: Colors.WHITE,
         }}>
         Thiệt bị sẽ được {device.isTurnOn ? 'tắt' : 'bật'} sau:
       </Text>
@@ -131,12 +140,12 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
         }}
         digitTxtStyle={{color: Colors.TEXT}}
         timeLabelStyle={{
-          color: Colors.TEXT1,
+          color: Colors.WHITE,
           fontWeight: 'bold',
           position: 'absolute',
           bottom: -30,
         }}
-        separatorStyle={{color: Colors.TEXT}}
+        separatorStyle={{color: Colors.WHITE}}
         timeToShow={['H', 'M', 'S']}
         timeLabels={{m: 'Phút', s: 'Giây', h: 'Giờ'}}
         showSeparator
@@ -148,16 +157,16 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
             name={'controller-play'}
             size={50}
             style={styles.icon}
-            color={Colors.TEXT1}
+            color={Colors.WHITE}
           />
         ) : (
-          <AntDesign name={'pause'} size={60} color={Colors.TEXT1} />
+          <AntDesign name={'pause'} size={60} color={Colors.WHITE} />
         )}
       </TouchableOpacity>
       <TouchableOpacity style={styles.deleteBtn} onPress={onSetModalVisible}>
-        <AntDesign name={'delete'} size={35} color={Colors.TEXT1} />
+        <AntDesign name={'delete'} size={35} color={Colors.WHITE} />
       </TouchableOpacity>
-    </View>
+    </ImageBackground>
   ) : (
     <View style={styles.container}>
       <Modal visible={isShowModalTime} transparent>

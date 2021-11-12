@@ -11,6 +11,8 @@ export interface UpdateUsersRespone {
 export interface User {
   role: string;
   isActive: boolean;
+  firstname?: string;
+  lastname?: string;
   devicesEsp: string[];
   username: string;
   email: string;

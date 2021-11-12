@@ -24,12 +24,15 @@ import {
   FormUploadDevice,
   DeviceDetailsWatt,
   AlarmTimes,
+  Profile,
 } from '../screens';
 import {Colors} from '../config';
 import {Button} from '../components';
 import {ScanQrCode} from '../components/QRCode';
 import {AddManually} from '../screens/Devices/Addmanually';
 import {NavigationScreen} from '../config/NavigationScreen';
+import {useSelector} from 'react-redux';
+import {RootState} from '../stores/stores';
 
 type HomeStackParamList = {
   Home: undefined;
@@ -42,6 +45,7 @@ type HomeStackParamList = {
   FormUploadDevice: undefined;
   DeviceDetailsWatt: undefined;
   AlarmTimes: undefined;
+  Profile: undefined;
 };
 
 type SmartStackParamList = {
@@ -52,6 +56,7 @@ type SmartStackParamList = {
 type SettingsStackParamList = {
   Setting: undefined;
   DeviceAtHome: undefined;
+  Profile: undefined;
 };
 
 interface StackScreenOptions {
@@ -89,28 +94,34 @@ function HomeStackScreen() {
         component={HomeScreen}
         options={StackScreenOptions({
           title: 'Home',
-          renderHeader: ({route, navigation}) => (
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                width: '95%',
-              }}>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate(NavigationScreen.Login);
+          renderHeader: ({route, navigation}) => {
+            const {token} = useSelector((state: RootState) => state.auth);
+
+            return (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  width: '95%',
                 }}>
-                <AntDesign name={'user'} color={'#212329'} size={24} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate(NavigationScreen.AddDevice);
-                }}>
-                <AntDesign name={'plus'} color={'#212329'} size={24} />
-              </TouchableOpacity>
-            </View>
-          ),
+                <TouchableOpacity
+                  onPress={() => {
+                    token
+                      ? navigation.navigate(NavigationScreen.Profile)
+                      : navigation.navigate(NavigationScreen.Login);
+                  }}>
+                  <AntDesign name={'user'} color={'#212329'} size={24} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate(NavigationScreen.AddDevice);
+                  }}>
+                  <AntDesign name={'plus'} color={'#212329'} size={24} />
+                </TouchableOpacity>
+              </View>
+            );
+          },
         })}
       />
       <HomeStack.Screen
@@ -213,6 +224,22 @@ function HomeStackScreen() {
           ),
         })}
       />
+      <HomeStack.Screen
+        name={NavigationScreen.Profile}
+        component={Profile}
+        options={StackScreenOptions({
+          title: NavigationScreen.Profile,
+          renderHeader: ({route, navigation}) => (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{textAlign: 'center'}}>Thông tin tài khoản</Text>
+            </View>
+          ),
+        })}
+      />
     </HomeStack.Navigator>
   );
 }
@@ -222,25 +249,34 @@ function CreatesStackScreen() {
     <CreatesStack.Navigator
       screenOptions={StackScreenOptions({
         title: 'Smarts',
-        renderHeader: ({route, navigation}) => (
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              width: '95%',
-            }}>
-            <TouchableOpacity onPress={() => {}}>
-              <AntDesign name={'user'} color={'#212329'} size={24} />
-            </TouchableOpacity>
-            <Button
-              isShowText={false}
-              onPress={() => {}}
-              title={''}
-              Icon={<AntDesign name={'plus'} color={'#ffffff'} size={18} />}
-            />
-          </View>
-        ),
+        renderHeader: ({route, navigation}) => {
+          const {token} = useSelector((state: RootState) => state.auth);
+
+          return (
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                width: '95%',
+              }}>
+              <TouchableOpacity
+                onPress={() => {
+                  token
+                    ? navigation.navigate(NavigationScreen.Profile)
+                    : navigation.navigate(NavigationScreen.Login);
+                }}>
+                <AntDesign name={'user'} color={'#212329'} size={24} />
+              </TouchableOpacity>
+              <Button
+                isShowText={false}
+                onPress={() => {}}
+                title={''}
+                Icon={<AntDesign name={'plus'} color={'#ffffff'} size={18} />}
+              />
+            </View>
+          );
+        },
       })}>
       <CreatesStack.Screen name="Smart" component={SmartScreen} />
       <CreatesStack.Screen
@@ -260,30 +296,30 @@ function SettingsStackScreen() {
         component={SettingScreen}
         options={StackScreenOptions({
           title: 'Settings',
-          renderHeader: ({route, navigation}) => (
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                width: '98%',
-              }}>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate(NavigationScreen.ScanQRCode);
-                }}
-                style={{marginHorizontal: 8}}>
-                <AntDesign name={'scan1'} color={'#212329'} size={24} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  console.log(navigation);
-                }}
-                style={{marginHorizontal: 8}}>
-                <AntDesign name={'setting'} color={'#212329'} size={24} />
-              </TouchableOpacity>
-            </View>
-          ),
+          renderHeader: ({route, navigation}) => {
+            return (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  width: '98%',
+                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate(NavigationScreen.ScanQRCode);
+                  }}
+                  style={{marginHorizontal: 8}}>
+                  <AntDesign name={'scan1'} color={'#212329'} size={24} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {}}
+                  style={{marginHorizontal: 8}}>
+                  <AntDesign name={'setting'} color={'#212329'} size={24} />
+                </TouchableOpacity>
+              </View>
+            );
+          },
         })}
       />
       <SettingsStack.Screen
@@ -300,6 +336,22 @@ function SettingsStackScreen() {
               <Text style={{textAlign: 'center'}}>
                 Các thiết bị điện trong nhà
               </Text>
+            </View>
+          ),
+        })}
+      />
+      <SettingsStack.Screen
+        name={NavigationScreen.Profile}
+        component={Profile}
+        options={StackScreenOptions({
+          title: NavigationScreen.Profile,
+          renderHeader: ({route, navigation}) => (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{textAlign: 'center'}}>Thông tin tài khoản</Text>
             </View>
           ),
         })}
