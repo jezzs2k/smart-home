@@ -23,6 +23,8 @@ import useModalNotification from '../../Hooks/useModalNotification';
 import useTimeout from '../../Hooks/useTimeout';
 import {Button, InputComp} from '../../components';
 import useToggle from '../../Hooks/useToggle';
+import {useAppDispatch} from '../../stores/stores';
+import {cancelTimeOut, createTimeOut} from '../../stores/factories/timeOut';
 
 const BG = require('../../assets/images/bg.png');
 
@@ -30,26 +32,36 @@ interface AlarmTimesProps {}
 
 export interface TDataCountTime {
   isRunning: boolean;
+  name: string;
+  seconds: number;
+  remainSeconds: number;
 }
 
 export const AlarmTimes = ({}: AlarmTimesProps) => {
-  const [isPause, setIsPause] = useState(true);
-  const [valueHour, setValueHour] = useState('');
-  const [valueMinute, setValueMinute] = useState('');
-  const [second, setSecond] = useState(0);
-
-  const [isShowModalTime, setShowModalTime] = useToggle(false);
-  const [isHasCountTime, setHasCountTime] = useToggle(false);
-
-  const route =
-    useRoute<
-      RouteProp<{params: {device: DeviceT; dataCountTime: TDataCountTime}}>
-    >();
+  const dispatch = useAppDispatch();
+  const route = useRoute<
+    RouteProp<{
+      params: {device: DeviceT; dataCountTime: TDataCountTime | null};
+    }>
+  >();
   const device = route.params.device;
   const dataCountTime = route.params.dataCountTime;
 
+  const [isPause, setIsPause] = useState(true);
+  const [valueHour, setValueHour] = useState('');
+  const [valueMinute, setValueMinute] = useState('');
+  const [second, setSecond] = useState(dataCountTime?.remainSeconds || 0);
+
+  const [isShowModalTime, setShowModalTime] = useToggle(false);
+  const [isHasCountTime, setHasCountTime] = useToggle(!!dataCountTime || false);
+
+  const handleCreateWorker = (deviceId: string, seconds: number) => {
+    dispatch(createTimeOut({deviceId, seconds}));
+  };
+
   const handleRemoveCountTime = () => {
-    console.log('dsds');
+    dispatch(cancelTimeOut({deviceId: device.deviceId}));
+    handleOnOff();
   };
 
   const [ModalComponent, onSetModalVisible, value] = useModalNotification({
@@ -61,29 +73,12 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
     onAccept: handleRemoveCountTime,
   });
 
-  const handlePushNotification = () => {
-    PushNotification.localNotification({
-      channelId: 'local-channel',
-      largeIcon: 'ic_launcher',
-      smallIcon: 'ic_notification',
-      bigText:
-        'My big text that will be shown when notification is expanded. Styling can be done using HTML tags(see android docs for details)',
-      subText: 'Thông báo bật tắt thiết bị',
-      bigLargeIcon: 'ic_launcher',
-      color: Colors.primary,
-      /* iOS and Android properties */
-      id: 0,
-      title: 'My Notification Title', // (optional)
-      message: 'My Notification Message', // (required)
-      playSound: true,
-      soundName: 'default',
-      number: 10,
-    });
-  };
-
   const handleOnOff = () => {
-    // handlePushNotification();
     setSecond(0);
+    setShowModalTime(false);
+    setHasCountTime(false);
+    setValueHour('');
+    setValueMinute('');
   };
   const handlePause = () => {
     setIsPause(!isPause);
@@ -94,6 +89,11 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
   };
 
   const handleConfirmTime = () => {
+    if (!valueMinute && !valueHour) {
+      setShowModalTime(false);
+      return;
+    }
+
     let hour = 0;
     let minute = 0;
 
@@ -109,11 +109,12 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
       hour = Number(valueHour);
     }
 
-    console.log(hour, minute);
-    setSecond(hour * 60 * 60 + minute * 60);
+    const _seconds = hour * 60 * 60 + minute * 60;
+
+    setSecond(_seconds);
     setShowModalTime(false);
     setHasCountTime(true);
-    //request cronjob
+    handleCreateWorker(device.deviceId, _seconds);
   };
 
   return isHasCountTime ? (

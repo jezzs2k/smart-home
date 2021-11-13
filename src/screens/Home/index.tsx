@@ -40,6 +40,7 @@ export const HomeScreen = ModalLoading()(
   ({onSetLoading, onCloseLoading}: HomeProps) => {
     const navigation = useNavigation<NavigationProp<any>>();
     const {loading, data} = useSelector((state: RootState) => state.device);
+    const {token} = useSelector((state: RootState) => state.auth);
     const isFocused = useIsFocused();
     const dispatch = useAppDispatch();
 
@@ -56,61 +57,94 @@ export const HomeScreen = ModalLoading()(
     };
 
     useEffect(() => {
-      const unsubscribe = messaging().onMessage(async remoteMessage => {
-        console.log(
-          'A new FCM message arrived!',
-          JSON.stringify(remoteMessage),
-        );
-      });
+      // Get the device token
+      messaging()
+        .getToken()
+        .then(token => {
+          dispatch(updateUsers({deviceToken: token}));
+        });
+    }, []);
 
+    useEffect(() => {
+      const unsubscribe = messaging().onMessage(async remoteMessage => {
+        if (remoteMessage && remoteMessage.notification) {
+          PushNotification.localNotification({
+            channelId: 'local-channel',
+            largeIcon: 'ic_launcher',
+            smallIcon: 'ic_notification',
+            bigText: remoteMessage.notification.body,
+            subText: 'Thông báo bật tắt thiết bị',
+            bigLargeIcon: 'ic_launcher',
+            color: Colors.primary,
+            /* iOS and Android properties */
+            id: 0,
+            title: remoteMessage.notification.title, // (optional)
+            message: remoteMessage.notification.body!, // (required)
+            playSound: true,
+            soundName: 'default',
+            number: 10,
+          });
+        }
+      });
       return unsubscribe;
     }, []);
 
     useEffect(() => {
-      PushNotification.configure({
-        onRegister: async function (token) {
-          const tokenSaved = await getKey(KeyStogare.DEVICE_TOKEN);
+      if (token) {
+        PushNotification.configure({
+          onRegister: async function (token) {},
 
-          if (!tokenSaved) {
-            await setKey(KeyStogare.DEVICE_TOKEN, token.token);
-            dispatch(updateUsers({deviceToken: token.token}));
-          }
-        },
+          onNotification: function (notification) {
+            PushNotification.localNotification({
+              channelId: 'local-channel',
+              largeIcon: 'ic_launcher',
+              smallIcon: 'ic_notification',
+              bigText: notification.data.content,
+              subText: 'Thông báo bật tắt thiết bị',
+              bigLargeIcon: 'ic_launcher',
+              color: Colors.primary,
+              /* iOS and Android properties */
+              id: 0,
+              title: notification.data.title, // (optional)
+              message: notification.data.content, // (required)
+              playSound: true,
+              soundName: 'default',
+              number: 10,
+            });
+            dispatch(getDevices());
+          },
 
-        onNotification: function (notification) {
-          console.log('NOTIFICATION:', notification);
-        },
+          onAction: function (notification) {},
 
-        onAction: function (notification) {},
+          onRegistrationError: function (err) {
+            console.error(err.message, err);
+          },
 
-        onRegistrationError: function (err) {
-          console.error(err.message, err);
-        },
+          permissions: {
+            alert: true,
+            badge: true,
+            sound: true,
+          },
 
-        permissions: {
-          alert: true,
-          badge: true,
-          sound: true,
-        },
+          popInitialNotification: true,
 
-        popInitialNotification: true,
+          requestPermissions: Platform.OS === 'ios',
+        });
 
-        requestPermissions: true,
-      });
-
-      // PushNotification.createChannel(
-      //   {
-      //     channelId: 'local-channel',
-      //     channelName: 'My channel',
-      //     channelDescription: 'A channel to categorise your notifications',
-      //     playSound: false,
-      //     soundName: 'default',
-      //     importance: Importance.HIGH,
-      //     vibrate: true,
-      //   },
-      //   created => null,
-      // );
-    }, []);
+        PushNotification.createChannel(
+          {
+            channelId: 'local-channel', // (required)
+            channelName: 'My channel', // (required)
+            channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
+            playSound: false, // (optional) default: true
+            soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+            importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
+            vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
+          },
+          created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
+        );
+      }
+    }, [token]);
 
     useEffect(() => {
       isFocused && dispatch(getDevices());

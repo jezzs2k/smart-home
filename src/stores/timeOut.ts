@@ -1,22 +1,21 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {User} from './factories/user';
 
 interface PayloadActionType {
-  data?: User | null;
+  data?: {success: Boolean} | null;
   error?: any;
 }
 
-export interface UserStateReducer extends PayloadActionType {
+export interface TimeOutStateReducer extends PayloadActionType {
   loading: boolean;
 }
 
-const initState: UserStateReducer = {
+const initState: TimeOutStateReducer = {
   loading: false,
   error: null,
   data: null,
 };
 
-const userSlice = createSlice({
+const timeOutSlice = createSlice({
   name: 'users',
   initialState: initState,
   reducers: {
@@ -42,5 +41,5 @@ const userSlice = createSlice({
   },
 });
 
-export const {start, reject, resolves, resetDataUser} = userSlice.actions;
-export default userSlice.reducer;
+export const {start, reject, resolves, resetDataUser} = timeOutSlice.actions;
+export default timeOutSlice.reducer;

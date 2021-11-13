@@ -16,6 +16,7 @@ import {
 import authReducer from './auth';
 import deviceReducer from './device';
 import userReducer from './user';
+import timeOutReducer from './timeOut';
 
 export type RootState = ReturnType<typeof store.getState>;
 
@@ -23,6 +24,7 @@ const reducer = combineReducers({
   auth: authReducer,
   device: deviceReducer,
   user: userReducer,
+  timeOut: timeOutReducer,
 });
 
 const persistConfig = {

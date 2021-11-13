@@ -4,10 +4,12 @@ import {reject, resolves, start} from '../user';
 import {AppDispatch} from '../stores';
 import {KeyStogare} from '../../config/KeyStorage';
 
-export interface UpdateUsersRespone {
-  user: User;
+export interface WorkerT {
+  isRunning: boolean;
+  name: string;
+  seconds: number;
+  createdAt: Date;
 }
-
 export interface User {
   role: string;
   isActive: boolean;
@@ -20,6 +22,7 @@ export interface User {
   updatedAt: Date;
   __v: number;
   id: string;
+  workers?: WorkerT[];
 }
 
 export const updateUsers =
@@ -62,14 +65,14 @@ export const updateUsers =
         params.deviceToken = deviceToken;
       }
 
-      const result: AxiosResponse<UpdateUsersRespone> = await axiosInstance.put(
+      const result: AxiosResponse<User> = await axiosInstance.put(
         '/users',
         params,
         config,
       );
 
       if (result?.data) {
-        dispatch(resolves({data: result.data.user}));
+        dispatch(resolves({data: result.data}));
       } else {
         dispatch(reject({error: 'Internal Server'}));
       }
@@ -77,3 +80,30 @@ export const updateUsers =
       dispatch(reject({error: error}));
     }
   };
+
+export const getUser = () => async (dispatch: AppDispatch) => {
+  dispatch(start());
+
+  try {
+    const token = await getKey(KeyStogare.Token);
+
+    let config = {
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+    };
+
+    const result: AxiosResponse<User> = await axiosInstance.get(
+      '/users',
+      config,
+    );
+
+    if (result?.data) {
+      dispatch(resolves({data: result.data}));
+    } else {
+      dispatch(reject({error: 'Internal Server'}));
+    }
+  } catch (error) {
+    dispatch(reject({error: error}));
+  }
+};

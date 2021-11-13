@@ -1,6 +1,7 @@
 import {
   NavigationProp,
   RouteProp,
+  useIsFocused,
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
@@ -24,6 +25,10 @@ import {
   ModalLoading,
 } from '../../components/ModalLoading';
 import {NavigationScreen} from '../../config/NavigationScreen';
+import {RootState, useAppDispatch} from '../../stores/stores';
+import {getUser, WorkerT} from '../../stores/factories/user';
+import {useSelector} from 'react-redux';
+import {checkTimeOut} from '../../stores/factories/timeOut';
 
 const OnImage = require('../../assets/images/power-off.png');
 const OffImage = require('../../assets/images/power-on.png');
@@ -42,16 +47,27 @@ const ListItem = [
 
 let dataFirebase = {};
 
+let dataWorker: {
+  isRunning: boolean;
+  name: string;
+  seconds: number;
+  remainSeconds: number;
+} | null = null;
+
 interface DeviceDetailsProps extends IModalLoadingPassProp {}
 
 export const DeviceDetails = ModalLoading()(
   ({onCloseLoading, onSetLoading}: DeviceDetailsProps) => {
+    const isFocused = useIsFocused();
     const [isTurnOn, setIsTurnOn] = useState(false);
 
     const route = useRoute<RouteProp<{params: {item: DeviceT}}>>();
     const itemDevice = route.params.item;
 
+    const dispatch = useAppDispatch();
     const navigation = useNavigation<NavigationProp<any>>();
+    const {data, loading} = useSelector((state: RootState) => state.user);
+    const {data: dataTime} = useSelector((state: RootState) => state.timeOut);
 
     const handleBack = () => navigation.goBack();
 
@@ -66,13 +82,57 @@ export const DeviceDetails = ModalLoading()(
             setIsTurnOn(!isTurnOn);
           }
         });
+
+      dispatch(checkTimeOut({deviceId: itemDevice.deviceId}));
     };
 
     const handleNavigateToOnOff = () => {
       navigation.navigate(NavigationScreen.AlarmTimes, {
         device: itemDevice,
+        dataCountTime: dataWorker,
       });
     };
+
+    const handleGetWorker = (workers: WorkerT[]) => {
+      const worker = workers.find(item => item.name === itemDevice.deviceId);
+
+      if (!worker) {
+        return;
+      }
+
+      const currentDate = new Date();
+
+      const startDate = new Date(worker?.createdAt!);
+
+      dataWorker = {
+        isRunning: worker?.isRunning!,
+        name: worker?.name!,
+        seconds: worker?.seconds!,
+        remainSeconds:
+          worker?.seconds! +
+          38 -
+          Math.round((currentDate.getTime() - startDate.getTime()) / 1000),
+      };
+    };
+
+    useEffect(() => {
+      if (dataTime?.success) {
+        dataWorker = null;
+      }
+    }, [dataTime]);
+
+    useEffect(() => {
+      if (data?.workers && !loading) {
+        handleGetWorker(data.workers);
+      }
+    }, [data, loading]);
+
+    useEffect(() => {
+      if (isFocused) {
+        dataWorker = null;
+        dispatch(getUser());
+      }
+    }, [isFocused]);
 
     useEffect(() => {
       onSetLoading();
