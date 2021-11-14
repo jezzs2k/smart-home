@@ -40,7 +40,7 @@ export const HomeScreen = ModalLoading()(
   ({onSetLoading, onCloseLoading}: HomeProps) => {
     const navigation = useNavigation<NavigationProp<any>>();
     const {loading, data} = useSelector((state: RootState) => state.device);
-    const {token} = useSelector((state: RootState) => state.auth);
+    const {token: tokenAcc} = useSelector((state: RootState) => state.auth);
     const isFocused = useIsFocused();
     const dispatch = useAppDispatch();
 
@@ -58,12 +58,14 @@ export const HomeScreen = ModalLoading()(
 
     useEffect(() => {
       // Get the device token
+     if (tokenAcc) {
       messaging()
-        .getToken()
-        .then(token => {
-          dispatch(updateUsers({deviceToken: token}));
-        });
-    }, []);
+      .getToken()
+      .then(token => {
+        dispatch(updateUsers({deviceToken: token}));
+      });
+     }
+    }, [tokenAcc]);
 
     useEffect(() => {
       const unsubscribe = messaging().onMessage(async remoteMessage => {
