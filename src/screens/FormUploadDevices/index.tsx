@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {StyleSheet} from 'react-native';
 import {Formik} from 'formik';
 import {NavigationProp, useNavigation} from '@react-navigation/core';
-// import WifiManager from 'react-native-wifi-reborn';
+import WifiManager from 'react-native-wifi-reborn';
 import {useSelector} from 'react-redux';
 import {Device, Form, InputComp} from '../../components';
 import {Button} from '../../components';
@@ -67,43 +67,45 @@ export const FormUploadDevice = ModalLoading()(
     const handleConnectEsp = () => {
       !loading && onSetLoading();
       console.log('ok');
-      
-      // WifiManager.connectToProtectedSSID(ssid, password, isWep).then(
-      //   () => {
-      //     console.log('Connected successfully!');
-      //     setTimeout(() => {
-      //       onCloseLoading();
 
-      //       WifiManager.getCurrentWifiSSID().then(
-      //         ssid1 => {
-      //           console.log("Your current connected wifi SSID is " + ssid1);
-      //           if (ssid1 !== ssid) {
-      //             setContent2('Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại');
-      //             onSetModalVisible2(true);
-      //           }else {
-      //             navigation.navigate(NavigationScreen.ConnectEsp, {
-      //               idEsp: deviceId,
-      //             });
-      //           }
-      //         },
-      //         () => {
-      //           console.log("Cannot get current SSID!");
-      //           setContent2('Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại');
-      //           onSetModalVisible2(true);
-      //         }
-      //       );
-      //     }, 7000);
+      WifiManager.connectToProtectedSSID(ssid, password, isWep).then(
+        () => {
+          console.log('Connected successfully!');
+          // setTimeout(() => {
+          //   onCloseLoading();
 
-      //     // navigation.navigate(NavigationScreen.ConnectEsp, {
-      //     //   idEsp: deviceId,
-      //     // });
-      //   },
-      //   () => {
-      //     onCloseLoading();
-      //     setContent2('Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại');
-      //     onSetModalVisible2(true);
-      //   },
-      // );
+          //   WifiManager.getCurrentWifiSSID().then(
+          //     ssid1 => {
+          //       console.log("Your current connected wifi SSID is " + ssid1);
+          //       if (ssid1 !== ssid) {
+          //         setContent2('Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại');
+          //         onSetModalVisible2(true);
+          //       }else {
+          //         navigation.navigate(NavigationScreen.ConnectEsp, {
+          //           idEsp: deviceId,
+          //         });
+          //       }
+          //     },
+          //     () => {
+          //       console.log("Cannot get current SSID!");
+          //       setContent2('Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại');
+          //       onSetModalVisible2(true);
+          //     }
+          //   );
+          // }, 7000);
+
+          // navigation.navigate(NavigationScreen.ConnectEsp, {
+          //   idEsp: deviceId,
+          // });
+        },
+        (e) => {
+          console.log('e', e);
+          
+          onCloseLoading();
+          setContent2('Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại');
+          onSetModalVisible2(true);
+        },
+      );
     };
 
     const [ModalComponent, onSetModalVisible, _visible, setContent] = useModalNotification({customTextTitle: 'Kết nối ESP 8266', 

@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {FlatList, Platform, StyleSheet, View} from 'react-native';
+import {FlatList, PermissionsAndroid, Platform, StyleSheet, View} from 'react-native';
 import {
   NavigationProp,
   useIsFocused,
@@ -93,15 +93,31 @@ export const HomeScreen = ModalLoading()(
       
     }, [netInfo])
 
-    useEffect(() => {
-      WifiManager.connectToProtectedSSID('Hieu', '12345678', true).then(
-        () => {
-          console.log('Connected successfully!');
-        },
-        (e) => {
-          console.log('error',e);
-        },
-      );
+    useEffect(async() => {
+      // WifiManager.connectToProtectedSSID('Hieu', '12345678', true).then(
+      //   () => {
+      //     console.log('Connected successfully!');
+      //   },
+      //   (e) => {
+      //     console.log('error',e);
+      //   },
+      // );
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            'title': 'Wifi networks',
+            'message': 'We need your permission in order to find wifi networks'
+          }
+        )
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log("Thank you for your permission! :)");
+        } else {
+          console.log("You will not able to retrieve wifi available networks list");
+        }
+      } catch (err) {
+        console.warn(err)
+      }
     }, [])
 
     useEffect(() => {

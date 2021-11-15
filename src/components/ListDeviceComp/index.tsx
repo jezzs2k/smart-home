@@ -41,7 +41,16 @@ export const ListDevice = ({}: ListDeviceDataProps) => {
     const handleToScanQr = async (item: Device) => {
       const token = await getKey(KeyStogare.Token);
       if (token) {
-        navigation.navigate(NavigationScreen.ScanQRCode, {itemDevice: item});
+        // navigation.navigate(NavigationScreen.ScanQRCode, {itemDevice: item});
+        navigation.navigate(NavigationScreen.FormUploadDevice, {
+          itemDevice: item,
+          wifiInfo: {
+            ssid: 'Hieu',
+            password: '12345678',
+            isWep: true,
+          },
+          deviceId: 'sdsdsdsd',
+        });
       }else {
         navigation.navigate(NavigationScreen.Login);
       }
