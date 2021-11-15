@@ -1,6 +1,5 @@
 import {Formik} from 'formik';
 import React, {useEffect} from 'react';
-import WifiManager from 'react-native-wifi-reborn';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import database from '@react-native-firebase/database';
 

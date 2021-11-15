@@ -2,33 +2,27 @@ import React, {useEffect} from 'react';
 import {FlatList, Platform, StyleSheet, View} from 'react-native';
 import {
   NavigationProp,
-  useFocusEffect,
   useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
-import database from '@react-native-firebase/database';
 import PushNotification, {Importance} from 'react-native-push-notification';
 import messaging from '@react-native-firebase/messaging';
+import WifiManager from 'react-native-wifi-reborn';
+import { useNetInfo } from '@react-native-community/netinfo';
 
 import {
   Button,
-  CodeFieldComp,
   DeviceComponent,
-  ListDevice,
   ScreenDefault,
 } from '../../components';
 import {Colors} from '../../config';
 import {ModalLoading} from '../../components/ModalLoading';
-import useTimeout from '../../Hooks/useTimeout';
 import {useSelector} from 'react-redux';
 import {RootState, useAppDispatch} from '../../stores/stores';
-import {AuthStateReducer, start} from '../../stores/auth';
 import {NavigationScreen} from '../../config/NavigationScreen';
 import {DeviceT, getDevices} from '../../stores/factories/device';
-import {getKey, setKey} from '../../utils';
-import {KeyStogare} from '../../config/KeyStorage';
 import {updateUsers} from '../../stores/factories/user';
-
+import wifi from 'react-native-android-wifi';
 interface HomeProps {
   loading: boolean;
 
@@ -38,6 +32,8 @@ interface HomeProps {
 
 export const HomeScreen = ModalLoading()(
   ({onSetLoading, onCloseLoading}: HomeProps) => {
+    const netInfo = useNetInfo();
+
     const navigation = useNavigation<NavigationProp<any>>();
     const {loading, data} = useSelector((state: RootState) => state.device);
     const {token: tokenAcc} = useSelector((state: RootState) => state.auth);
@@ -92,9 +88,28 @@ export const HomeScreen = ModalLoading()(
     }, []);
 
     useEffect(() => {
-      if (token) {
+       console.log(netInfo);
+      
+      
+    }, [netInfo])
+
+    useEffect(() => {
+      WifiManager.connectToProtectedSSID('Hieu', '12345678', true).then(
+        () => {
+          console.log('Connected successfully!');
+        },
+        (e) => {
+          console.log('error',e);
+        },
+      );
+    }, [])
+
+    useEffect(() => {
+      if (tokenAcc) {
         PushNotification.configure({
-          onRegister: async function (token) {},
+          onRegister: async function (token) {
+            dispatch(updateUsers({deviceToken: token}));
+          },
 
           onNotification: function (notification) {
             PushNotification.localNotification({
@@ -146,7 +161,7 @@ export const HomeScreen = ModalLoading()(
           created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
         );
       }
-    }, [token]);
+    }, [tokenAcc]);
 
     useEffect(() => {
       isFocused && dispatch(getDevices());

@@ -135,31 +135,33 @@ export const DeviceDetails = ModalLoading()(
     }, [isFocused]);
 
     useEffect(() => {
-      onSetLoading();
-      if (itemDevice.deviceId) {
-        database()
-          .ref('/' + itemDevice.deviceId)
-          .once('value')
-          .then(snapshot => {
-            onCloseLoading();
-            const data = snapshot.val();
-            dataFirebase = data;
+      if (isFocused) {
+        onSetLoading();
+        if (itemDevice.deviceId) {
+          database()
+            .ref('/' + itemDevice.deviceId)
+            .once('value')
+            .then(snapshot => {
+              onCloseLoading();
+              const data = snapshot.val();
+              dataFirebase = data;
 
-            if (data.isTurnOn == 'true') {
-              setIsTurnOn(true);
-            } else {
-              setIsTurnOn(false);
-            }
-          })
-          .catch(() => {
-            onCloseLoading();
-          });
+              if (data.isTurnOn === 'true') {
+                setIsTurnOn(true);
+              } else {
+                setIsTurnOn(false);
+              }
+            })
+            .catch(() => {
+              onCloseLoading();
+            });
+        }
       }
 
       return () => {
         database().ref(`/${itemDevice.deviceId}`).off();
       };
-    }, []);
+    }, [isFocused]);
 
     return (
       <ImageBackground
@@ -270,8 +272,8 @@ const styles = StyleSheet.create({
     width: 40,
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 70,
+    height: 70,
   },
   btnOnOff: {
     alignItems: 'center',
