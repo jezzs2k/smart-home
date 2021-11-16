@@ -4,6 +4,7 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import {RNCamera} from 'react-native-camera';
 import {request, PERMISSIONS} from 'react-native-permissions';
 import Icon from 'react-native-vector-icons/Ionicons';
+import uuid from 'react-native-uuid';
 import {
   NavigationProp,
   RouteProp,
@@ -15,8 +16,8 @@ import {NavigationScreen} from '../../config/NavigationScreen';
 import {IModalLoadingPassProp, ModalLoading} from '../ModalLoading';
 import {Device} from '..';
 import useModalNotification from '../../Hooks/useModalNotification';
-import { useAppDispatch } from '../../stores/stores';
-import { resetDevice } from '../../stores/device';
+import {useAppDispatch} from '../../stores/stores';
+import {resetDevice} from '../../stores/device';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -37,10 +38,12 @@ export const ScanQrCode = ModalLoading()(
     const [scanAgain, setScanAgain] = useState(false);
     const dispatch = useAppDispatch();
 
-    const [ModalComponent, onSetModalVisible, visible, setContent] = useModalNotification({customTextTitle: 'Kết nối ESP 8266', 
-                                                                                           customTextCancel: 'Đóng', 
-                                                                                           onCancel: () =>  navigation.navigate(NavigationScreen.Home), 
-                                                                                          });
+    const [ModalComponent, onSetModalVisible, visible, setContent] =
+      useModalNotification({
+        customTextTitle: 'Kết nối ESP 8266',
+        customTextCancel: 'Đóng',
+        onCancel: () => navigation.navigate(NavigationScreen.Home),
+      });
 
     const onSuccess = (e: any) => {
       //QR TYPE: {"ssid":"SMART_HOME_ESP8266","password":"11111111","idEsp":"36d57abd-7e84-4079-afc0-cc9693a6dd90"}
@@ -64,7 +67,7 @@ export const ScanQrCode = ModalLoading()(
           password,
           isWep,
         },
-        deviceId: newDate.idEsp,
+        deviceId: uuid.v4(),
       });
     };
 

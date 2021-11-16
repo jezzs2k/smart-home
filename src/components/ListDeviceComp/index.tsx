@@ -42,15 +42,6 @@ export const ListDevice = ({}: ListDeviceDataProps) => {
       const token = await getKey(KeyStogare.Token);
       if (token) {
         navigation.navigate(NavigationScreen.ScanQRCode, {itemDevice: item});
-        // navigation.navigate(NavigationScreen.FormUploadDevice, {
-        //   itemDevice: item,
-        //   wifiInfo: {
-        //     ssid: 'SMART_HOME_ESP8266',
-        //     password: '11111111',
-        //     isWep: true,
-        //   },
-        //   deviceId: '7067c016-4519-11ec-81d3-0242ac130005',
-        // });
       } else {
         navigation.navigate(NavigationScreen.Login);
       }

@@ -22,7 +22,6 @@ import {RootState, useAppDispatch} from '../../stores/stores';
 import {NavigationScreen} from '../../config/NavigationScreen';
 import {DeviceT, getDevices} from '../../stores/factories/device';
 import {updateUsers} from '../../stores/factories/user';
-// import wifi from 'react-native-android-wifi';
 interface HomeProps {
   loading: boolean;
 
