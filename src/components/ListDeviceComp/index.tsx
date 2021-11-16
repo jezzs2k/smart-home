@@ -8,9 +8,9 @@ import {
   SectionListData,
 } from 'react-native';
 import {Colors} from '../../config';
-import { KeyStogare } from '../../config/KeyStorage';
+import {KeyStogare} from '../../config/KeyStorage';
 import {NavigationScreen} from '../../config/NavigationScreen';
-import { getKey } from '../../utils';
+import {getKey} from '../../utils';
 import {DeviceComponent} from '../DeviceComponent';
 import {ElectricSvg, FanSVG, LightBulb, OutletIcon} from '../Svgs';
 
@@ -41,17 +41,17 @@ export const ListDevice = ({}: ListDeviceDataProps) => {
     const handleToScanQr = async (item: Device) => {
       const token = await getKey(KeyStogare.Token);
       if (token) {
-        // navigation.navigate(NavigationScreen.ScanQRCode, {itemDevice: item});
-        navigation.navigate(NavigationScreen.FormUploadDevice, {
-          itemDevice: item,
-          wifiInfo: {
-            ssid: 'Hieu',
-            password: '12345678',
-            isWep: true,
-          },
-          deviceId: 'sdsdsdsd',
-        });
-      }else {
+        navigation.navigate(NavigationScreen.ScanQRCode, {itemDevice: item});
+        // navigation.navigate(NavigationScreen.FormUploadDevice, {
+        //   itemDevice: item,
+        //   wifiInfo: {
+        //     ssid: 'SMART_HOME_ESP8266',
+        //     password: '11111111',
+        //     isWep: true,
+        //   },
+        //   deviceId: '7067c016-4519-11ec-81d3-0242ac130005',
+        // });
+      } else {
         navigation.navigate(NavigationScreen.Login);
       }
     };

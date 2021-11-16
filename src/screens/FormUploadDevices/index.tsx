@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 import {StyleSheet} from 'react-native';
 import {Formik} from 'formik';
 import {NavigationProp, useNavigation} from '@react-navigation/core';
+import {useNetInfo} from '@react-native-community/netinfo';
 import WifiManager from 'react-native-wifi-reborn';
 import {useSelector} from 'react-redux';
 import {Device, Form, InputComp} from '../../components';
@@ -19,7 +20,7 @@ import useModalNotification from '../../Hooks/useModalNotification';
 
 interface FormUploadDeviceProps extends IModalLoadingPassProp {}
 
-interface wifiInfo {
+export interface WifiInfo {
   ssid: string;
   password: string;
   isWep?: boolean;
@@ -37,10 +38,11 @@ export const FormUploadDevice = ModalLoading()(
     const dispatch = useAppDispatch();
     const route = useRoute<
       RouteProp<{
-        params: {itemDevice: Device; wifiInfo: wifiInfo; deviceId: string};
+        params: {itemDevice: Device; wifiInfo: WifiInfo; deviceId: string};
       }>
     >();
-    const {ssid, password, isWep = false} = route.params.wifiInfo;
+    const netInfo = useNetInfo();
+    const {ssid, password, isWep = true} = route.params.wifiInfo;
     const item = route.params.itemDevice;
     const deviceId = route.params.deviceId;
 
@@ -66,65 +68,59 @@ export const FormUploadDevice = ModalLoading()(
 
     const handleConnectEsp = () => {
       !loading && onSetLoading();
-      console.log('ok');
 
       WifiManager.connectToProtectedSSID(ssid, password, isWep).then(
         () => {
           console.log('Connected successfully!');
-          // setTimeout(() => {
-          //   onCloseLoading();
-
-          //   WifiManager.getCurrentWifiSSID().then(
-          //     ssid1 => {
-          //       console.log("Your current connected wifi SSID is " + ssid1);
-          //       if (ssid1 !== ssid) {
-          //         setContent2('Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại');
-          //         onSetModalVisible2(true);
-          //       }else {
-          //         navigation.navigate(NavigationScreen.ConnectEsp, {
-          //           idEsp: deviceId,
-          //         });
-          //       }
-          //     },
-          //     () => {
-          //       console.log("Cannot get current SSID!");
-          //       setContent2('Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại');
-          //       onSetModalVisible2(true);
-          //     }
-          //   );
-          // }, 7000);
-
-          // navigation.navigate(NavigationScreen.ConnectEsp, {
-          //   idEsp: deviceId,
-          // });
         },
-        (e) => {
+        e => {
           console.log('e', e);
-          
+
           onCloseLoading();
-          setContent2('Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại');
+          setContent2(
+            'Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại',
+          );
           onSetModalVisible2(true);
         },
       );
     };
 
-    const [ModalComponent, onSetModalVisible, _visible, setContent] = useModalNotification({customTextTitle: 'Kết nối ESP 8266', 
-                                                                                           customTextCancel: 'Đóng', 
-                                                                                           onCancel: () =>  navigation.navigate(NavigationScreen.Home), 
-                                                                                            isJustShowCancel: true
-                                                                                          });
-    const [ModalComponent1, onSetModalVisible1, _visible1, setContent1] = useModalNotification({customTextTitle: 'Kết nối ESP 8266', 
-                                                                                          customTextCancel: 'Đóng', 
-                                                                                          customTextAccept: 'Đồng ý',
-                                                                                          onCancel: () =>  navigation.navigate(NavigationScreen.Home), 
-                                                                                          onAccept: handleConnectEsp
-                                                                                         });
-    const [ModalComponent2, onSetModalVisible2, _visible2, setContent2] = useModalNotification({customTextTitle: 'Kết nối ESP 8266', 
-                                                                                         customTextCancel: 'Đóng', 
-                                                                                         customTextAccept: 'Kết nối lại',
-                                                                                         onCancel: () =>  navigation.navigate(NavigationScreen.Home), 
-                                                                                         onAccept: handleConnectEsp
-                                                                                        });
+    const [ModalComponent, onSetModalVisible, _visible, setContent] =
+      useModalNotification({
+        customTextTitle: 'Kết nối ESP 8266',
+        customTextCancel: 'Đóng',
+        onCancel: () => navigation.navigate(NavigationScreen.Home),
+        isJustShowCancel: true,
+      });
+    const [ModalComponent1, onSetModalVisible1, _visible1, setContent1] =
+      useModalNotification({
+        customTextTitle: 'Kết nối ESP 8266',
+        customTextCancel: 'Đóng',
+        customTextAccept: 'Đồng ý',
+        onCancel: () => navigation.navigate(NavigationScreen.Home),
+        onAccept: handleConnectEsp,
+      });
+    const [ModalComponent2, onSetModalVisible2, _visible2, setContent2] =
+      useModalNotification({
+        customTextTitle: 'Kết nối ESP 8266',
+        customTextCancel: 'Đóng',
+        customTextAccept: 'Kết nối lại',
+        onCancel: () => navigation.navigate(NavigationScreen.Home),
+        onAccept: handleConnectEsp,
+      });
+
+    useEffect(() => {
+      if (
+        netInfo &&
+        netInfo.isConnected &&
+        netInfo.details?.ssid === 'SMART_HOME_ESP8266'
+      ) {
+        navigation.navigate(NavigationScreen.ConnectEsp, {
+          idEsp: deviceId,
+          wifiInfo: route.params.wifiInfo,
+        });
+      }
+    }, [netInfo]);
 
     useEffect(() => {
       if (!deviceId) {
@@ -137,19 +133,23 @@ export const FormUploadDevice = ModalLoading()(
     }, []);
 
     useEffect(() => {
-     return () => {
-       onCloseLoading();
-     }
-    }, [])
+      return () => {
+        onCloseLoading();
+      };
+    }, []);
 
     useEffect(() => {
       if (deviceById && deviceById.isConnected) {
-        setContent('Thiết bị này đã kết nối với tài khoản khác xin vui lòng kiểm tra lại');
+        setContent(
+          'Thiết bị này đã kết nối với tài khoản khác xin vui lòng kiểm tra lại',
+        );
         onSetModalVisible(true);
       }
 
       if (deviceById && !deviceById.isConnected) {
-        setContent1('Kết nối với điện thoại với thiết bị ESP để thiết lập hệ thống ?');
+        setContent1(
+          'Kết nối với điện thoại với thiết bị ESP để thiết lập hệ thống ?',
+        );
         onSetModalVisible1(true);
       }
 
@@ -158,7 +158,9 @@ export const FormUploadDevice = ModalLoading()(
 
     useEffect(() => {
       if (!loading && deviceUploaded && deviceId) {
-        setContent1('Kết nối với điện thoại với thiết bị ESP để thiết lập hệ thống ?');
+        setContent1(
+          'Kết nối với điện thoại với thiết bị ESP để thiết lập hệ thống ?',
+        );
         onSetModalVisible1(true);
       }
     }, [deviceUploaded]);

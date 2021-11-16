@@ -146,7 +146,7 @@ function HomeStackScreen() {
           renderHeader: ({route, navigation}) => <View />,
         })}
       />
-      {/* <HomeStack.Screen
+      <HomeStack.Screen
         name={NavigationScreen.ScanQRCode}
         component={ScanQrCode}
         options={StackScreenOptions({
@@ -161,7 +161,7 @@ function HomeStackScreen() {
             </View>
           ),
         })}
-      /> */}
+      />
       <HomeStack.Screen
         name={NavigationScreen.ConnectEsp}
         component={ConnectEsp}

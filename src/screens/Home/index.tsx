@@ -1,5 +1,11 @@
 import React, {useEffect} from 'react';
-import {FlatList, PermissionsAndroid, Platform, StyleSheet, View} from 'react-native';
+import {
+  FlatList,
+  PermissionsAndroid,
+  Platform,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {
   NavigationProp,
   useIsFocused,
@@ -7,14 +13,8 @@ import {
 } from '@react-navigation/native';
 import PushNotification, {Importance} from 'react-native-push-notification';
 import messaging from '@react-native-firebase/messaging';
-import WifiManager from 'react-native-wifi-reborn';
-import { useNetInfo } from '@react-native-community/netinfo';
 
-import {
-  Button,
-  DeviceComponent,
-  ScreenDefault,
-} from '../../components';
+import {Button, DeviceComponent, ScreenDefault} from '../../components';
 import {Colors} from '../../config';
 import {ModalLoading} from '../../components/ModalLoading';
 import {useSelector} from 'react-redux';
@@ -22,7 +22,7 @@ import {RootState, useAppDispatch} from '../../stores/stores';
 import {NavigationScreen} from '../../config/NavigationScreen';
 import {DeviceT, getDevices} from '../../stores/factories/device';
 import {updateUsers} from '../../stores/factories/user';
-import wifi from 'react-native-android-wifi';
+// import wifi from 'react-native-android-wifi';
 interface HomeProps {
   loading: boolean;
 
@@ -32,7 +32,7 @@ interface HomeProps {
 
 export const HomeScreen = ModalLoading()(
   ({onSetLoading, onCloseLoading}: HomeProps) => {
-    const netInfo = useNetInfo();
+    // const netInfo = useNetInfo();
 
     const navigation = useNavigation<NavigationProp<any>>();
     const {loading, data} = useSelector((state: RootState) => state.device);
@@ -54,13 +54,13 @@ export const HomeScreen = ModalLoading()(
 
     useEffect(() => {
       // Get the device token
-     if (tokenAcc) {
-      messaging()
-      .getToken()
-      .then(token => {
-        dispatch(updateUsers({deviceToken: token}));
-      });
-     }
+      if (tokenAcc) {
+        messaging()
+          .getToken()
+          .then(token => {
+            dispatch(updateUsers({deviceToken: token}));
+          });
+      }
     }, [tokenAcc]);
 
     useEffect(() => {
@@ -86,39 +86,6 @@ export const HomeScreen = ModalLoading()(
       });
       return unsubscribe;
     }, []);
-
-    useEffect(() => {
-       console.log(netInfo);
-      
-      
-    }, [netInfo])
-
-    useEffect(async() => {
-      // WifiManager.connectToProtectedSSID('Hieu', '12345678', true).then(
-      //   () => {
-      //     console.log('Connected successfully!');
-      //   },
-      //   (e) => {
-      //     console.log('error',e);
-      //   },
-      // );
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            'title': 'Wifi networks',
-            'message': 'We need your permission in order to find wifi networks'
-          }
-        )
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log("Thank you for your permission! :)");
-        } else {
-          console.log("You will not able to retrieve wifi available networks list");
-        }
-      } catch (err) {
-        console.warn(err)
-      }
-    }, [])
 
     useEffect(() => {
       if (tokenAcc) {

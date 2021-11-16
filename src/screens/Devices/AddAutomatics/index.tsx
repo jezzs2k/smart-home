@@ -1,15 +1,19 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
+import {Button} from '../../../components';
 
-import {ScanQrCode} from '../../../components/QRCode';
 import {Colors} from '../../../config';
 
-interface AddAutomaticsProps {
-  indexActiveScreen: number;
-}
+interface AddAutomaticsProps {}
 
-export const AddAutomatics = ({indexActiveScreen}: AddAutomaticsProps) => {
-  return <ScanQrCode indexActiveScreen={indexActiveScreen} />;
+export const AddAutomatics = ({}: AddAutomaticsProps) => {
+  const handleScanAuto = () => {};
+
+  return (
+    <View>
+      <Button title={'Quét'} onPress={handleScanAuto} isShowIcon={false} />
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
