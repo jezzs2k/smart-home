@@ -14,6 +14,8 @@ import {
   IModalLoadingPassProp,
   ModalLoading,
 } from '../../../components/ModalLoading';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../stores/stores';
 
 interface AddAutomaticsProps extends IModalLoadingPassProp {}
 
@@ -22,7 +24,14 @@ export const AddAutomatics = ModalLoading()(
     const [dataWifi, setDataWifi] = useState([]);
     const navigation = useNavigation<NavigationProp<any>>();
 
+    const {token} = useSelector((state: RootState) => state.auth);
+    
+
     const handleScanAuto = () => {
+      if (!token) {
+        navigation.navigate(NavigationScreen.Login);
+        return;
+      };
       onSetLoading();
       wifi.reScanAndLoadWifiList(
         (wifiStringList: string) => {

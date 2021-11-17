@@ -1,7 +1,6 @@
 import React, {useEffect} from 'react';
 import {
   FlatList,
-  PermissionsAndroid,
   Platform,
   StyleSheet,
   View,
@@ -183,8 +182,10 @@ export const HomeScreen = ModalLoading()(
       return (
         <View style={styles.container}>
           <FlatList
-            data={data}
+            data={data?.filter(item => item.isConnected)}
             renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
             numColumns={3}
             keyExtractor={item => item.id}
           />

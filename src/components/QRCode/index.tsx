@@ -18,6 +18,8 @@ import {Device} from '..';
 import useModalNotification from '../../Hooks/useModalNotification';
 import {useAppDispatch} from '../../stores/stores';
 import {resetDevice} from '../../stores/device';
+import { OutletIcon } from '../Svgs';
+import { idEspJust_36_char } from '../../utils';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -46,7 +48,6 @@ export const ScanQrCode = ModalLoading()(
       });
 
     const onSuccess = (e: any) => {
-      //QR TYPE: {"ssid":"SMART_HOME_ESP8266","password":"11111111","idEsp":"36d57abd-7e84-4079-afc0-cc9693a6dd90"}
       handleClearTime();
       onSetLoading();
       let ssid = '';
@@ -61,13 +62,13 @@ export const ScanQrCode = ModalLoading()(
       password = newDate.password;
 
       navigation.navigate(NavigationScreen.FormUploadDevice, {
-        itemDevice: route.params.itemDevice,
+        itemDevice: route?.params?.itemDevice || {title: 'Thiết bị điện', icon: <OutletIcon />},
         wifiInfo: {
           ssid,
           password,
           isWep,
         },
-        deviceId: uuid.v4(),
+        deviceId: idEspJust_36_char(String(uuid.v4())),
       });
     };
 

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {FlatList, Text, TouchableOpacity, View} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -12,7 +12,6 @@ import {
   IModalLoadingPassProp,
   ModalLoading,
 } from '../../components/ModalLoading';
-import {ModalNotification} from '../../components';
 import {useSelector} from 'react-redux';
 import {NavigationScreen} from '../../config/NavigationScreen';
 import useModalNotification from '../../Hooks/useModalNotification';
@@ -24,7 +23,11 @@ const HeaderProfile = () => {
   return (
     <TouchableOpacity
       onPress={() => {
-        navigation.navigate(NavigationScreen.Profile);
+        if (!user) {
+          navigation.navigate(NavigationScreen.Login);
+        }else{
+          navigation.navigate(NavigationScreen.Profile);
+        }
       }}
       style={{flexDirection: 'row', paddingHorizontal: 16}}>
       <View
