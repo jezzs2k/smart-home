@@ -17,6 +17,7 @@ import {
 } from '../../components/ModalLoading';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import useModalNotification from '../../Hooks/useModalNotification';
+import { resetDevice } from '../../stores/device';
 
 interface FormUploadDeviceProps extends IModalLoadingPassProp {}
 
@@ -31,7 +32,7 @@ interface LoginViewMode {
 }
 
 const initialValues = {deviceName: ''};
-
+let count = 0;
 export const FormUploadDevice = ModalLoading()(
   ({onCloseLoading, onSetLoading}: FormUploadDeviceProps) => {
     const navigation = useNavigation<NavigationProp<any>>();
@@ -75,12 +76,19 @@ export const FormUploadDevice = ModalLoading()(
         },
         e => {
           console.log('e', e);
+          
 
-          onCloseLoading();
-          setContent2(
-            'Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại',
-          );
-          onSetModalVisible2(true);
+          if (count === 5) {
+            onCloseLoading();
+            setContent2(
+              'Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại',
+            );
+            onSetModalVisible2(true);
+          }else {
+            count ++;
+            handleConnectEsp();
+          }
+         
         },
       );
     };
@@ -128,33 +136,34 @@ export const FormUploadDevice = ModalLoading()(
         onSetModalVisible(true);
         return;
       }
-      onSetLoading();
-      dispatch(getDeviceById(deviceId));
+      // onSetLoading();
+      // dispatch(getDeviceById(deviceId));
     }, []);
 
     useEffect(() => {
       return () => {
         onCloseLoading();
+        dispatch(resetDevice());
       };
     }, []);
 
-    useEffect(() => {
-      if (deviceById && deviceById.isConnected) {
-        setContent(
-          'Thiết bị này đã kết nối với tài khoản khác xin vui lòng kiểm tra lại',
-        );
-        onSetModalVisible(true);
-      }
+    // useEffect(() => {
+    //   if (deviceById && deviceById.isConnected) {
+    //     setContent(
+    //       'Thiết bị này đã kết nối với tài khoản khác xin vui lòng kiểm tra lại',
+    //     );
+    //     onSetModalVisible(true);
+    //   }
 
-      if (deviceById && !deviceById.isConnected) {
-        setContent1(
-          'Kết nối với điện thoại với thiết bị ESP để thiết lập hệ thống ?',
-        );
-        onSetModalVisible1(true);
-      }
+    //   if (deviceById && !deviceById.isConnected) {
+    //     setContent1(
+    //       'Kết nối với điện thoại với thiết bị ESP để thiết lập hệ thống ?',
+    //     );
+    //     onSetModalVisible1(true);
+    //   }
 
-      onCloseLoading();
-    }, [deviceById]);
+    //   onCloseLoading();
+    // }, [deviceById]);
 
     useEffect(() => {
       if (!loading && deviceUploaded && deviceId) {

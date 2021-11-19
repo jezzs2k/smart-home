@@ -20,6 +20,8 @@ import {
 import {NavigationScreen} from '../../config/NavigationScreen';
 import useModalNotification from '../../Hooks/useModalNotification';
 import {WifiInfo} from '../FormUploadDevices';
+import { useAppDispatch } from '../../stores/stores';
+import { resetDevice } from '../../stores/device';
 
 interface WifiT {
   ssid: string;
@@ -35,6 +37,7 @@ let isSubmited = false;
 
 export const ConnectEsp = ModalLoading()(
   ({onSetLoading, onCloseLoading, loading}: ConnectEspProps) => {
+    const dispatch = useAppDispatch();
     const netInfo = useNetInfo();
     const [ModalComponent, onSetModalVisible, _visible, setContent] =
       useModalNotification({
@@ -47,6 +50,8 @@ export const ConnectEsp = ModalLoading()(
               .ref('/' + route.params?.idEsp)
               .set(dataRealTime);
           }
+
+          dispatch(resetDevice());
 
           navigation.navigate(NavigationScreen.Home);
         },
@@ -75,11 +80,11 @@ export const ConnectEsp = ModalLoading()(
       )
         .then(data => {})
         .catch(e => {
-          setTimeout(() => {
-            if (loading) {
-              onCloseLoading();
-            }
-          }, 3000);
+          // setTimeout(() => {
+          //   if (loading) {
+          //     onCloseLoading();
+          //   }
+          // }, 3000);
         });
     };
 
@@ -108,6 +113,7 @@ export const ConnectEsp = ModalLoading()(
         .then(snapshot => {
           const data = snapshot.val();
           dataRealTime = data;
+
           if (isSubmited) {
             onCloseLoading();
 

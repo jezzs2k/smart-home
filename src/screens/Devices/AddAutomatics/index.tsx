@@ -16,16 +16,17 @@ import {
 } from '../../../components/ModalLoading';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../stores/stores';
+import { idEspJust_36_char } from '../../../utils';
 
 interface AddAutomaticsProps extends IModalLoadingPassProp {}
 
 export const AddAutomatics = ModalLoading()(
   ({onCloseLoading, onSetLoading}: AddAutomaticsProps) => {
     const [dataWifi, setDataWifi] = useState([]);
+    const [idEsp, setIdEsp] = useState(idEspJust_36_char());
     const navigation = useNavigation<NavigationProp<any>>();
 
     const {token} = useSelector((state: RootState) => state.auth);
-    
 
     const handleScanAuto = () => {
       if (!token) {
@@ -52,6 +53,13 @@ export const AddAutomatics = ModalLoading()(
       );
     };
 
+    useEffect(() => {
+      return () => {
+        setIdEsp(idEspJust_36_char())
+        setDataWifi([]);
+      };
+    }, [])
+
     return dataWifi.length > 0 ? (
       <FlatList
         style={{
@@ -70,7 +78,7 @@ export const AddAutomatics = ModalLoading()(
                     password: '11111111',
                     isWep: true,
                   },
-                  deviceId: uuid.v4(),
+                  deviceId: idEsp,
                 });
               }}
               style={{

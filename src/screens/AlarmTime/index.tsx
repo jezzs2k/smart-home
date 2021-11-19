@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   Modal,
   StyleSheet,
@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   View,
   ImageBackground,
+  Platform,
+  Animated,
 } from 'react-native';
-import {RouteProp, useRoute} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import CountDown from 'react-native-countdown-component';
-import PushNotification from 'react-native-push-notification';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { WindowsDatePickerChangeEvent } from '@react-native-community/datetimepicker';
 import {DeviceT} from '../../stores/factories/device';
 import {Colors} from '../../config';
 import {
@@ -20,13 +21,20 @@ import {
   widthPercentageToDP,
 } from 'react-native-responsive-screen';
 import useModalNotification from '../../Hooks/useModalNotification';
-import useTimeout from '../../Hooks/useTimeout';
 import {Button, InputComp} from '../../components';
 import useToggle from '../../Hooks/useToggle';
 import {useAppDispatch} from '../../stores/stores';
 import {cancelTimeOut, createTimeOut} from '../../stores/factories/timeOut';
+import { TabView, SceneMap, SceneRendererProps, NavigationState, } from 'react-native-tab-view';
+import { formatTimeToString } from '../../utils/formatDate';
 
 const BG = require('../../assets/images/bg.png');
+
+
+interface RouteType {
+  key: string;
+  title: string;
+}
 
 interface AlarmTimesProps {}
 
@@ -39,6 +47,7 @@ export interface TDataCountTime {
 
 export const AlarmTimes = ({}: AlarmTimesProps) => {
   const dispatch = useAppDispatch();
+  const navigation = useNavigation<any>();
   const route = useRoute<
     RouteProp<{
       params: {device: DeviceT; dataCountTime: TDataCountTime | null};
@@ -52,8 +61,220 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
   const [valueMinute, setValueMinute] = useState('');
   const [second, setSecond] = useState(dataCountTime?.remainSeconds || 0);
 
+  const [stateTab, useStateTab] = useState({
+    index: 0,
+    routes: [
+      {key: 'first', title: 'khoảng thời gian'},
+      {key: 'second', title: 'Thời gian thực'},
+    ],
+  });
+
+  //datepicker
+  const [date, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
+  const [turnOnTime, setTurnOnTime] = useState(new Date());
+  const [turnOffTime, setTurnOffTime] = useState(new Date());
+  const [isSetTurnOn, setModeTurn] = useToggle(false);
+
+  const onChange = (event: WindowsDatePickerChangeEvent | any, selectedDate?: Date): void => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === 'ios');
+
+    if (isSetTurnOn) {
+      setTurnOnTime(currentDate);
+    }else {
+      if (currentDate.getTime() - turnOnTime.getTime() < 0) {
+        setTurnOffTime(new Date(turnOnTime.getTime() + 1000*60));
+      }else {
+        setTurnOffTime(currentDate);
+      }
+    }
+    // setDate(currentDate);
+  };
+
   const [isShowModalTime, setShowModalTime] = useToggle(false);
   const [isHasCountTime, setHasCountTime] = useToggle(!!dataCountTime || false);
+
+  const handleSetRealTime = (isTimeOn: boolean) => {
+    if (isTimeOn) {
+      setModeTurn(true);
+    }else {
+      setModeTurn(false);
+    }
+
+    setShow(true);
+  }
+
+  const renderScene = SceneMap({
+    first: () =>  <View
+    style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+    <InputComp
+      defaultValue={valueHour}
+      onConditionsValue={value => {
+        console.log(value.length);
+
+        if (value.length > 2) {
+          return '23';
+        }
+
+        let newValue = value;
+        if (value && Number(value) > 23) {
+          newValue = '23';
+        }
+
+        return newValue;
+      }}
+      onChange={value => {
+        setValueHour(value);
+      }}
+      placeholder={'00'}
+      containerStyle={{
+        width: 60,
+        alignItems: 'center',
+      }}
+      inputStyle={{
+        fontSize: 30,
+      }}
+      label={'Giờ'}
+      containerLabelStyle={{
+        position: 'absolute',
+        bottom: -30,
+      }}
+      keyboardType={'numeric'}
+    />
+    <Text
+      style={{fontSize: 30, fontWeight: '700', marginHorizontal: 8}}>
+      :
+    </Text>
+    <InputComp
+      defaultValue={valueMinute}
+      onConditionsValue={value => {
+        if (value.length > 2) {
+          return '60';
+        }
+
+        let newValue = value;
+        if (value && Number(value) > 60) {
+          newValue = '60';
+        }
+
+        return newValue;
+      }}
+      onChange={value => {
+        setValueMinute(value);
+      }}
+      placeholder={'00'}
+      containerStyle={{
+        width: 60,
+        alignItems: 'center',
+      }}
+      inputStyle={{
+        fontSize: 30,
+      }}
+      label={'Phút'}
+      containerLabelStyle={{
+        position: 'absolute',
+        bottom: -30,
+      }}
+      keyboardType={'numeric'}
+    />
+  </View>,
+    second: () => <View style={{
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}>
+      <View style={{
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      width: '100%'
+    }}>
+        <View style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          width: '100%',
+          paddingHorizontal: 16,
+          alignItems: 'center'
+        }}>
+          <Button
+              title={'Cài đặt thời gian bật'}
+              onPress={() => handleSetRealTime(true)}
+              containerStyle={{
+                marginVertical: 4,
+                backgroundColor: Colors.LIGHT_GREEN
+              }}
+              isShowIcon={false}
+            />
+            <Text style={styles.text}>{turnOnTime ? formatTimeToString(turnOnTime) : ''}</Text>
+        </View>
+        <View style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          width: '100%',
+          paddingHorizontal: 16,
+          alignItems: 'center'
+        }}>
+          <Button
+            title={'Cài đặt thời gian tắt'}
+            onPress={() => handleSetRealTime(false)}
+            containerStyle={{
+              marginVertical: 4,
+              backgroundColor: Colors.LIGHT_RED
+            }}
+            isShowIcon={false}
+          />
+            <Text style={styles.text}>{turnOffTime ? formatTimeToString(turnOffTime) : ''}</Text>
+        </View>
+      </View>
+    </View>,
+  });
+
+  const renderTabBar = (
+    props: SceneRendererProps & {
+      navigationState: NavigationState<any>;
+    },
+  ) => {
+    const inputRange = props.navigationState.routes.map((x, i: number) => i);
+    const handleBack = () => setShowModalTime(false);
+
+    return (
+      <View style={styles.tabBar}>
+        <ModalComponent />
+        {props.navigationState.routes.map((route: RouteType, i: number) => {
+          const opacity = props.position.interpolate({
+            inputRange,
+            outputRange: inputRange.map((inputIndex: number) =>
+              inputIndex === i ? 1 : 0.5,
+            ),
+          });
+
+          return (
+            <React.Fragment>
+              {i === 0 && (
+                <TouchableOpacity
+                  onPress={handleBack}
+                  style={{
+                    justifyContent: 'center',
+                    paddingHorizontal: 8,
+                  }}>
+                  <AntDesign name={'close'} color={'#000'} size={20} />
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={styles.tabItem}
+                onPress={() => useStateTab(state => ({...state, index: i}))}>
+                <Animated.Text style={{opacity}}>{route.title}</Animated.Text>
+              </TouchableOpacity>
+            </React.Fragment>
+          );
+        })}
+      </View>
+    );
+  };
 
   const handleCreateWorker = (deviceId: string, seconds: number) => {
     dispatch(createTimeOut({deviceId, seconds}));
@@ -87,6 +308,9 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
   const handleChooseTime = () => {
     setShowModalTime(true);
   };
+
+  const handleIndexChange = (index: number) =>
+    useStateTab(state => ({...state, index: index}));
 
   const handleConfirmTime = () => {
     if (!valueMinute && !valueHour) {
@@ -171,6 +395,14 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
   ) : (
     <View style={styles.container}>
       <Modal visible={isShowModalTime} transparent>
+        {show && <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            mode={'time'}
+            is24Hour={true}
+            display="default"
+            onChange={onChange}
+          />}
         <View
           style={{
             backgroundColor: Colors.BLACK,
@@ -189,95 +421,30 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
           <View
             style={{
               minHeight: heightPercentageToDP(40),
-              width: widthPercentageToDP(75),
+              width: widthPercentageToDP(85),
               backgroundColor: Colors.WHITE,
               borderRadius: 14,
-              justifyContent: 'center',
-              alignItems: 'center',
             }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <InputComp
-                defaultValue={valueHour}
-                onConditionsValue={value => {
-                  console.log(value.length);
-
-                  if (value.length > 2) {
-                    return '23';
-                  }
-
-                  let newValue = value;
-                  if (value && Number(value) > 23) {
-                    newValue = '23';
-                  }
-
-                  return newValue;
-                }}
-                onChange={value => {
-                  setValueHour(value);
-                }}
-                placeholder={'00'}
-                containerStyle={{
-                  width: 60,
-                  alignItems: 'center',
-                }}
-                inputStyle={{
-                  fontSize: 30,
-                }}
-                label={'Giờ'}
-                containerLabelStyle={{
-                  position: 'absolute',
-                  bottom: -30,
-                }}
-                keyboardType={'numeric'}
-              />
-              <Text
-                style={{fontSize: 30, fontWeight: '700', marginHorizontal: 8}}>
-                :
-              </Text>
-              <InputComp
-                defaultValue={valueMinute}
-                onConditionsValue={value => {
-                  if (value.length > 2) {
-                    return '60';
-                  }
-
-                  let newValue = value;
-                  if (value && Number(value) > 60) {
-                    newValue = '60';
-                  }
-
-                  return newValue;
-                }}
-                onChange={value => {
-                  setValueMinute(value);
-                }}
-                placeholder={'00'}
-                containerStyle={{
-                  width: 60,
-                  alignItems: 'center',
-                }}
-                inputStyle={{
-                  fontSize: 30,
-                }}
-                label={'Phút'}
-                containerLabelStyle={{
-                  position: 'absolute',
-                  bottom: -30,
-                }}
-                keyboardType={'numeric'}
-              />
-            </View>
-            <Button
-              title={'Xác nhận'}
-              onPress={handleConfirmTime}
-              containerStyle={{
-                marginTop: 60,
-              }}
+            <TabView
+              navigationState={stateTab}
+              renderScene={renderScene}
+              renderTabBar={renderTabBar}
+              onIndexChange={handleIndexChange}
             />
+           <View style={{
+             alignItems: 'center',
+             justifyContent: 'center',
+             flex: 1,
+           }}>
+            <Button
+                title={'Xác nhận'}
+                onPress={handleConfirmTime}
+                containerStyle={{
+                  marginTop: 60,
+                }}
+                isShowIcon={false}
+              />
+           </View>
           </View>
         </View>
       </Modal>
@@ -296,6 +463,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.BG,
   },
+  text: {
+    fontWeight: '700',
+    fontSize: 18
+  },
   wrapperIcon: {
     width: widthPercentageToDP(20),
     height: widthPercentageToDP(20),
@@ -313,5 +484,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 40,
     right: 40,
+  },
+  tabBar: {
+    flexDirection: 'row',
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 16,
   },
 });

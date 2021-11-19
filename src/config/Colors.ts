@@ -10,4 +10,5 @@ export default {
   WHITE: '#ffffff',
   BORDER: '#cfcfcf',
   LIGHT_RED: '#e67c73',
+  LIGHT_GREEN: '#47c71a',
 };

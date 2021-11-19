@@ -23,6 +23,7 @@
     "@react-navigation/native-stack": "6.2.2",
     "@reduxjs/toolkit": "1.6.2",
     "axios": "0.22.0",
+    "date-fns": "2.26.0",
     "formik": "2.2.9",
     "react": "17.0.2",
     "react-native": "0.65.1",

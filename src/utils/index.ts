@@ -1,10 +1,11 @@
+import uuid from 'react-native-uuid';
+
 export {default as axiosInstance} from './AxiosConfig';
 export * from './storage';
 
-export const idEspJust_36_char = (id: string) => {
-  console.log(id.length);
-
+export const idEspJust_36_char = () => {
   let val = '';
+  const id = String(uuid.v4());
 
   if (id.length > 36) {
     for (let i = 0; i < 36; ++i) {
@@ -18,6 +19,5 @@ export const idEspJust_36_char = (id: string) => {
     val = id;
   }
 
-  console.log(val, val.length);
   return val;
 };

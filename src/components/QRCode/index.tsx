@@ -12,6 +12,7 @@ import {
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
+
 import {NavigationScreen} from '../../config/NavigationScreen';
 import {IModalLoadingPassProp, ModalLoading} from '../ModalLoading';
 import {Device} from '..';
@@ -38,6 +39,7 @@ export const ScanQrCode = ModalLoading()(
     const route = useRoute<RouteProp<{params: {itemDevice: Device}}>>();
     const [flashOn, setFlashOn] = useState(RNCamera.Constants.FlashMode.off);
     const [scanAgain, setScanAgain] = useState(false);
+    const [idEsp, setIdEsp] = useState(idEspJust_36_char());
     const dispatch = useAppDispatch();
 
     const [ModalComponent, onSetModalVisible, visible, setContent] =
@@ -54,9 +56,9 @@ export const ScanQrCode = ModalLoading()(
       let password = '';
       const isWep = false;
 
-      const newDate = JSON.parse(
-        e?.data || {ssid: 'SMART_HOME_ESP8266', password: '11111111'},
-      );
+      const newDate = e?.data?.ssid ? JSON.parse(
+        e?.data,
+      ) : {ssid: 'SMART_HOME_ESP8266', password: '11111111'};
 
       ssid = newDate.ssid;
       password = newDate.password;
@@ -68,7 +70,7 @@ export const ScanQrCode = ModalLoading()(
           password,
           isWep,
         },
-        deviceId: idEspJust_36_char(String(uuid.v4())),
+        deviceId: idEsp,
       });
     };
 
@@ -131,6 +133,13 @@ export const ScanQrCode = ModalLoading()(
         handleClearTime();
       };
     }, []);
+
+    useEffect(() => {
+      return () => {
+        setIdEsp(idEspJust_36_char())
+      };
+    }, [])
+
 
     const time2 = () => {
       if (timeRunWhenFadeIn) {
