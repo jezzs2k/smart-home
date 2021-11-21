@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import database from '@react-native-firebase/database';
 import {DeviceT} from '../../stores/factories/device';
-import {DeviceComponent} from '../../components';
+import {Button, DeviceComponent} from '../../components';
 import {Colors} from '../../config';
 import {
   IModalLoadingPassProp,
@@ -34,18 +34,7 @@ const OnImage = require('../../assets/images/power-off.png');
 const OffImage = require('../../assets/images/power-on.png');
 const BlueBg = require('../../assets/images/blue-bg.jpg');
 
-const ListItem = [
-  {
-    title: 'Thời gian sử dụng: ',
-    value: '30 P',
-  },
-  {
-    title: 'Lượng điện tiêu thụ: ',
-    value: '30 KWH',
-  },
-];
-
-let dataFirebase = {};
+let dataFirebase: any = {};
 
 let dataWorker: {
   isRunning: boolean;
@@ -60,6 +49,32 @@ export const DeviceDetails = ModalLoading()(
   ({onCloseLoading, onSetLoading}: DeviceDetailsProps) => {
     const isFocused = useIsFocused();
     const [isTurnOn, setIsTurnOn] = useState(false);
+    const [dataWorker, setDataWorker] = useState< {
+      isRunning: boolean;
+      name: string;
+      seconds: number;
+      remainSeconds: number;
+    } | null>(null);
+    const [listItem, setListItem] = useState([
+      {
+        title: 'Thời gian sử dụng: ',
+        value: '0 Phút',
+      },
+      {
+        title: 'Lượng điện tiêu thụ: ',
+        value: '0 KWH',
+      },
+    ]);
+
+    const [dataEnergy, setDataEnergy] = useState<{
+      current: string,
+      electricityBill: string,
+      energytage: string,
+      frequency: string,
+      pf: string,
+      power: string,
+      voltage: string,
+    } | null>(null)
 
     const route = useRoute<RouteProp<{params: {item: DeviceT}}>>();
     const itemDevice = route.params.item;
@@ -72,17 +87,45 @@ export const DeviceDetails = ModalLoading()(
     const handleBack = () => navigation.goBack();
 
     const handleToDetailWatt = () =>
-      navigation.navigate(NavigationScreen.DeviceDetailsWatt);
+      navigation.navigate(NavigationScreen.DeviceDetailsWatt, {
+        item: itemDevice,
+      });
 
-    const handleTurnOne = () => {
-      database()
-        .ref('/' + itemDevice.deviceId)
-        .set({...dataFirebase, isTurnOn: String(!isTurnOn)}, e => {
-          if (e == null) {
-            setIsTurnOn(!isTurnOn);
+    const handleSetDataMinute = (data: any) => {
+      let valueEnrgy: any = {};
+      data.energy.split(",").forEach((item: string, index: number) => {
+        if(index === 0) {
+          valueEnrgy[item.split(":")[0].split("{")[1]] = item.split(":")[1];
+        }
+        
+        if(item !== "}"){
+          valueEnrgy[item.split(":")[0]] = item.split(":")[1]
           }
-        });
+      });
 
+      setListItem(values => values.map((item, index) => {
+        if (index === 0) {
+          if (data.isTurnOn === 'true') {
+            return {...item, value: String(Math.floor((data.totalTimeOn + new Date().getTime() - data.startTime)/(1000*60))) + ' Phút'}
+          };
+          return {...item, value: String(Math.floor((data.totalTimeOn)/(1000*60))) + ' Phút'}
+        }else {
+          return {...item, value: String(valueEnrgy.energytage)+ ' KWH'};
+        }
+      }))
+    }
+
+    const handleTurnOn = () => {
+      handleSetDataMinute(dataFirebase);
+
+      database()
+      .ref('/' + itemDevice.deviceId)
+      .set({...dataFirebase, isTurnOn: String(!isTurnOn)}, e => {
+        if (e == null) {
+          setIsTurnOn(!isTurnOn);
+        }
+      });
+      
       dispatch(checkTimeOut({deviceId: itemDevice.deviceId}));
     };
 
@@ -104,7 +147,7 @@ export const DeviceDetails = ModalLoading()(
 
       const startDate = new Date(worker?.createdAt!);
 
-      dataWorker = {
+      setDataWorker({
         isRunning: worker?.isRunning!,
         name: worker?.name!,
         seconds: worker?.seconds!,
@@ -112,55 +155,61 @@ export const DeviceDetails = ModalLoading()(
           worker?.seconds! +
           38 -
           Math.round((currentDate.getTime() - startDate.getTime()) / 1000),
-      };
+      })
     };
 
     useEffect(() => {
       if (dataTime?.success) {
-        dataWorker = null;
+        // dataWorker = null;
+        setDataWorker(null);
       }
     }, [dataTime]);
 
     useEffect(() => {
       if (data?.workers && !loading) {
         handleGetWorker(data.workers);
+      }else {
+        setDataWorker(null);
       }
     }, [data, loading]);
 
     useEffect(() => {
       if (isFocused) {
-        dataWorker = null;
+        // dataWorker = null;
+        setDataWorker(null);
         dispatch(getUser());
       }
     }, [isFocused]);
 
     useEffect(() => {
       if (isFocused) {
+      if (itemDevice.deviceId) {
         onSetLoading();
-        if (itemDevice.deviceId) {
-          database()
-            .ref('/' + itemDevice.deviceId)
-            .once('value')
-            .then(snapshot => {
-              onCloseLoading();
-              const data = snapshot.val();
-              dataFirebase = data;
+        database()
+          .ref('/' + itemDevice.deviceId)
+          .on('value', (snapshot => {
+            onCloseLoading();
+            const data = snapshot.val();
+            dataFirebase = data;
 
-              if (data.isTurnOn === 'true') {
-                setIsTurnOn(true);
-              } else {
-                setIsTurnOn(false);
-              }
-            })
-            .catch(() => {
-              onCloseLoading();
-            });
-        }
+            dataWorker && dispatch(getUser());
+            
+
+            if (data.isTurnOn === 'true') {
+              handleSetDataMinute(data);
+              !isTurnOn && setIsTurnOn(true);
+            } else {
+              isTurnOn && setIsTurnOn(false);
+            }
+          }))
       }
 
-      return () => {
-        database().ref(`/${itemDevice.deviceId}`).off();
-      };
+    }
+
+    return () => {
+      database().ref(`/${itemDevice.deviceId}`).off();
+    };
+
     }, [isFocused]);
 
     return (
@@ -180,7 +229,7 @@ export const DeviceDetails = ModalLoading()(
           />
         </View>
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.btnOnOff} onPress={handleTurnOne}>
+          <TouchableOpacity style={styles.btnOnOff} onPress={handleTurnOn}>
             {isTurnOn ? (
               <Image source={OnImage} style={styles.image} />
             ) : (
@@ -189,7 +238,7 @@ export const DeviceDetails = ModalLoading()(
           </TouchableOpacity>
           <FlatList
             style={styles.listsInfo}
-            data={ListItem}
+            data={listItem}
             renderItem={({item}) => (
               <View style={styles.listItem}>
                 <Text style={[styles.text, styles.textBold]}>{item.title}</Text>
@@ -214,19 +263,23 @@ export const DeviceDetails = ModalLoading()(
               </View>
             )}
             ListFooterComponent={
-              <Text style={[styles.text, styles.textSmall]}>
+              dataWorker ? 
+              <Button onPress={handleNavigateToOnOff} title={'Xem hẹn giờ'} Icon={
+              <AntDesign name={'clockcircleo'} size={22} color={Colors.WHITE} />
+              } />
+             : <Text style={[styles.text, styles.textSmall]}>
                 {'Bạn chưa cài đặt thời gian Bật/Tắt cho thiết bị này'}
               </Text>
             }
           />
-          <TouchableOpacity
+          {!dataWorker && <TouchableOpacity
             style={styles.timeCount}
             onPress={handleNavigateToOnOff}>
             <Text style={[styles.text, styles.textSmall, styles.textLink]}>
               {'Cài đặt thời gian bật/tắt'}
             </Text>
             <AntDesign name={'arrowright'} size={26} color={Colors.primary} />
-          </TouchableOpacity>
+          </TouchableOpacity>}
         </View>
       </ImageBackground>
     );
@@ -302,7 +355,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   timeCount: {
-    paddingHorizontal: 22,
+    paddingLeft: 8,
     paddingBottom: 22,
     flexDirection: 'row',
   },
