@@ -387,7 +387,7 @@ export const DeviceDetailsWatt = ModalLoading()(
               styles.titleProgress,
               {color: Colors.LIGHT_RED},
             ]}>
-            Biểu đồ công suất
+            Năng lượng tiêu thụ (KWH)
           </Text>
 
           <View style={styles.chartStyle}>
