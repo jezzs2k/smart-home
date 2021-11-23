@@ -32,7 +32,6 @@ interface LoginViewMode {
 }
 
 const initialValues = {deviceName: ''};
-let count = 0;
 export const FormUploadDevice = ModalLoading()(
   ({onCloseLoading, onSetLoading}: FormUploadDeviceProps) => {
     const navigation = useNavigation<NavigationProp<any>>();
@@ -42,8 +41,6 @@ export const FormUploadDevice = ModalLoading()(
         params: {itemDevice: Device; wifiInfo: WifiInfo; deviceId: string};
       }>
     >();
-    const netInfo = useNetInfo();
-    const {ssid, password, isWep = true} = route.params.wifiInfo;
     const item = route.params.itemDevice;
     const deviceId = route.params.deviceId;
 
@@ -68,29 +65,10 @@ export const FormUploadDevice = ModalLoading()(
     };
 
     const handleConnectEsp = () => {
-      !loading && onSetLoading();
-
-      WifiManager.connectToProtectedSSID(ssid, password, isWep).then(
-        () => {
-          console.log('Connected successfully!');
-        },
-        e => {
-          console.log('e', e);
-          
-
-          if (count === 5) {
-            onCloseLoading();
-            setContent2(
-              'Hệ thống lỗi không kết nối được với thiết bị \n Kiểm tra lại nguồn điện cho thiết bị này và kết nối lại',
-            );
-            onSetModalVisible2(true);
-          }else {
-            count ++;
-            handleConnectEsp();
-          }
-         
-        },
-      );
+      navigation.navigate(NavigationScreen.ConnectEsp, {
+        idEsp: deviceId,
+        wifiInfo: route.params.wifiInfo,
+      });
     };
 
     const [ModalComponent, onSetModalVisible, _visible, setContent] =
@@ -100,35 +78,6 @@ export const FormUploadDevice = ModalLoading()(
         onCancel: () => navigation.navigate(NavigationScreen.Home),
         isJustShowCancel: true,
       });
-    const [ModalComponent1, onSetModalVisible1, _visible1, setContent1] =
-      useModalNotification({
-        customTextTitle: 'Kết nối ESP 8266',
-        customTextCancel: 'Đóng',
-        customTextAccept: 'Đồng ý',
-        onCancel: () => navigation.navigate(NavigationScreen.Home),
-        onAccept: handleConnectEsp,
-      });
-    const [ModalComponent2, onSetModalVisible2, _visible2, setContent2] =
-      useModalNotification({
-        customTextTitle: 'Kết nối ESP 8266',
-        customTextCancel: 'Đóng',
-        customTextAccept: 'Kết nối lại',
-        onCancel: () => navigation.navigate(NavigationScreen.Home),
-        onAccept: handleConnectEsp,
-      });
-
-    useEffect(() => {
-      if (
-        netInfo &&
-        netInfo.isConnected &&
-        netInfo.details?.ssid === 'SMART_HOME_ESP8266'
-      ) {
-        navigation.navigate(NavigationScreen.ConnectEsp, {
-          idEsp: deviceId,
-          wifiInfo: route.params.wifiInfo,
-        });
-      }
-    }, [netInfo]);
 
     useEffect(() => {
       if (!deviceId) {
@@ -136,8 +85,6 @@ export const FormUploadDevice = ModalLoading()(
         onSetModalVisible(true);
         return;
       }
-      // onSetLoading();
-      // dispatch(getDeviceById(deviceId));
     }, []);
 
     useEffect(() => {
@@ -147,38 +94,16 @@ export const FormUploadDevice = ModalLoading()(
       };
     }, []);
 
-    // useEffect(() => {
-    //   if (deviceById && deviceById.isConnected) {
-    //     setContent(
-    //       'Thiết bị này đã kết nối với tài khoản khác xin vui lòng kiểm tra lại',
-    //     );
-    //     onSetModalVisible(true);
-    //   }
-
-    //   if (deviceById && !deviceById.isConnected) {
-    //     setContent1(
-    //       'Kết nối với điện thoại với thiết bị ESP để thiết lập hệ thống ?',
-    //     );
-    //     onSetModalVisible1(true);
-    //   }
-
-    //   onCloseLoading();
-    // }, [deviceById]);
-
     useEffect(() => {
       if (!loading && deviceUploaded && deviceId) {
-        setContent1(
-          'Kết nối với điện thoại với thiết bị ESP để thiết lập hệ thống ?',
-        );
-        onSetModalVisible1(true);
+        onCloseLoading();
+        handleConnectEsp();
       }
     }, [deviceUploaded]);
 
     return (
       <React.Fragment>
         <ModalComponent />
-        <ModalComponent1 />
-        <ModalComponent2 />
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
           {({handleChange, handleBlur, handleSubmit, values}) => (
             <Form titleHeader={'Tạo thiết bị'}>

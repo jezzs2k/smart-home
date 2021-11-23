@@ -115,8 +115,6 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
     <InputComp
       defaultValue={valueHour}
       onConditionsValue={value => {
-        console.log(value.length);
-
         if (value.length > 2) {
           return '23';
         }

@@ -62,15 +62,10 @@ export const DeviceScreens = () => {
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         setPermission(true);
-        console.log('Thank you for your permission! :)');
       } else {
         setPermission(false);
-        console.log(
-          'You will not able to retrieve wifi available networks list',
-        );
       }
     } catch (err) {
-      console.warn(err);
     }
   };
 

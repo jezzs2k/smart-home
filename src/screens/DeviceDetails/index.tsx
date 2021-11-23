@@ -36,20 +36,13 @@ const BlueBg = require('../../assets/images/blue-bg.jpg');
 
 let dataFirebase: any = {};
 
-let dataWorker: {
-  isRunning: boolean;
-  name: string;
-  seconds: number;
-  remainSeconds: number;
-} | null = null;
-
 interface DeviceDetailsProps extends IModalLoadingPassProp {}
 
 export const DeviceDetails = ModalLoading()(
   ({onCloseLoading, onSetLoading}: DeviceDetailsProps) => {
     const isFocused = useIsFocused();
     const [isTurnOn, setIsTurnOn] = useState(false);
-    const [dataWorker, setDataWorker] = useState< {
+    const [dataWorker, setDataWorker] = useState<{
       isRunning: boolean;
       name: string;
       seconds: number;
@@ -65,16 +58,6 @@ export const DeviceDetails = ModalLoading()(
         value: '0 KWH',
       },
     ]);
-
-    const [dataEnergy, setDataEnergy] = useState<{
-      current: string,
-      electricityBill: string,
-      energytage: string,
-      frequency: string,
-      pf: string,
-      power: string,
-      voltage: string,
-    } | null>(null)
 
     const route = useRoute<RouteProp<{params: {item: DeviceT}}>>();
     const itemDevice = route.params.item;
@@ -93,39 +76,45 @@ export const DeviceDetails = ModalLoading()(
 
     const handleSetDataMinute = (data: any) => {
       let valueEnrgy: any = {};
-      data.energy.split(",").forEach((item: string, index: number) => {
-        if(index === 0) {
-          valueEnrgy[item.split(":")[0].split("{")[1]] = item.split(":")[1];
+      data.energy.split(',').forEach((item: string, index: number) => {
+        if (index === 0) {
+          valueEnrgy[item.split(':')[0].split('{')[1]] = item.split(':')[1];
         }
-        
-        if(item !== "}"){
-          valueEnrgy[item.split(":")[0]] = item.split(":")[1]
-          }
+
+        if (item !== '}') {
+          valueEnrgy[item.split(':')[0]] = item.split(':')[1];
+        }
       });
 
-      setListItem(values => values.map((item, index) => {
-        if (index === 0) {
-          if (data.isTurnOn === 'true') {
-            return {...item, value: String(Math.floor((data.totalTimeOn + new Date().getTime() - data.startTime)/(1000*60))) + ' Phút'}
-          };
-          return {...item, value: String(Math.floor((data.totalTimeOn)/(1000*60))) + ' Phút'}
-        }else {
-          return {...item, value: String(valueEnrgy.energytage)+ ' KWH'};
-        }
-      }))
-    }
+      setListItem(values =>
+        values.map((item, index) => {
+          if (index === 0) {
+            return {
+              ...item,
+              value:
+                String(
+                  Math.round(
+                    (data.totalTimeOn + new Date().getTime() - data.startTime) /
+                      (1000 * 60),
+                  ),
+                ) + ' Phút',
+            };
+          } else {
+            return {...item, value: String(valueEnrgy.power || 0) + ' KWH'};
+          }
+        }),
+      );
+    };
 
     const handleTurnOn = () => {
-      handleSetDataMinute(dataFirebase);
-
       database()
-      .ref('/' + itemDevice.deviceId)
-      .set({...dataFirebase, isTurnOn: String(!isTurnOn)}, e => {
-        if (e == null) {
-          setIsTurnOn(!isTurnOn);
-        }
-      });
-      
+        .ref('/' + itemDevice.deviceId)
+        .set({...dataFirebase, isTurnOn: String(!isTurnOn)}, e => {
+          if (e == null) {
+            setIsTurnOn(!isTurnOn);
+          }
+        });
+
       dispatch(checkTimeOut({deviceId: itemDevice.deviceId}));
     };
 
@@ -155,12 +144,11 @@ export const DeviceDetails = ModalLoading()(
           worker?.seconds! +
           38 -
           Math.round((currentDate.getTime() - startDate.getTime()) / 1000),
-      })
+      });
     };
 
     useEffect(() => {
       if (dataTime?.success) {
-        // dataWorker = null;
         setDataWorker(null);
       }
     }, [dataTime]);
@@ -168,14 +156,13 @@ export const DeviceDetails = ModalLoading()(
     useEffect(() => {
       if (data?.workers && !loading) {
         handleGetWorker(data.workers);
-      }else {
+      } else {
         setDataWorker(null);
       }
     }, [data, loading]);
 
     useEffect(() => {
       if (isFocused) {
-        // dataWorker = null;
         setDataWorker(null);
         dispatch(getUser());
       }
@@ -183,33 +170,31 @@ export const DeviceDetails = ModalLoading()(
 
     useEffect(() => {
       if (isFocused) {
-      if (itemDevice.deviceId) {
-        onSetLoading();
-        database()
-          .ref('/' + itemDevice.deviceId)
-          .on('value', (snapshot => {
-            onCloseLoading();
-            const data = snapshot.val();
-            dataFirebase = data;
+        if (itemDevice.deviceId) {
+          onSetLoading();
+          database()
+            .ref('/' + itemDevice.deviceId)
+            .on('value', snapshot => {
+              onCloseLoading();
+              const data = snapshot.val();
+              dataFirebase = data;
 
-            dataWorker && dispatch(getUser());
-            
+              dataWorker && dispatch(getUser());
 
-            if (data.isTurnOn === 'true') {
               handleSetDataMinute(data);
-              !isTurnOn && setIsTurnOn(true);
-            } else {
-              isTurnOn && setIsTurnOn(false);
-            }
-          }))
+
+              if (data.isTurnOn === 'true') {
+                !isTurnOn && setIsTurnOn(true);
+              } else {
+                isTurnOn && setIsTurnOn(false);
+              }
+            });
+        }
       }
 
-    }
-
-    return () => {
-      database().ref(`/${itemDevice.deviceId}`).off();
-    };
-
+      return () => {
+        database().ref(`/${itemDevice.deviceId}`).off();
+      };
     }, [isFocused]);
 
     return (
@@ -263,23 +248,35 @@ export const DeviceDetails = ModalLoading()(
               </View>
             )}
             ListFooterComponent={
-              dataWorker ? 
-              <Button onPress={handleNavigateToOnOff} title={'Xem hẹn giờ'} Icon={
-              <AntDesign name={'clockcircleo'} size={22} color={Colors.WHITE} />
-              } />
-             : <Text style={[styles.text, styles.textSmall]}>
-                {'Bạn chưa cài đặt thời gian Bật/Tắt cho thiết bị này'}
-              </Text>
+              dataWorker ? (
+                <Button
+                  onPress={handleNavigateToOnOff}
+                  title={'Xem hẹn giờ'}
+                  Icon={
+                    <AntDesign
+                      name={'clockcircleo'}
+                      size={22}
+                      color={Colors.WHITE}
+                    />
+                  }
+                />
+              ) : (
+                <Text style={[styles.text, styles.textSmall]}>
+                  {'Bạn chưa cài đặt thời gian Bật/Tắt cho thiết bị này'}
+                </Text>
+              )
             }
           />
-          {!dataWorker && <TouchableOpacity
-            style={styles.timeCount}
-            onPress={handleNavigateToOnOff}>
-            <Text style={[styles.text, styles.textSmall, styles.textLink]}>
-              {'Cài đặt thời gian bật/tắt'}
-            </Text>
-            <AntDesign name={'arrowright'} size={26} color={Colors.primary} />
-          </TouchableOpacity>}
+          {!dataWorker && (
+            <TouchableOpacity
+              style={styles.timeCount}
+              onPress={handleNavigateToOnOff}>
+              <Text style={[styles.text, styles.textSmall, styles.textLink]}>
+                {'Cài đặt thời gian bật/tắt'}
+              </Text>
+              <AntDesign name={'arrowright'} size={26} color={Colors.primary} />
+            </TouchableOpacity>
+          )}
         </View>
       </ImageBackground>
     );

@@ -48,7 +48,6 @@ export const AddAutomatics = ModalLoading()(
           }
         },
         (error: any) => {
-          console.log(error);
         },
       );
     };

@@ -96,7 +96,7 @@ export const RegisterScreen = ({}: RegisterScreenProps) => {
               defaultValue={values.email}
               onChange={handleChange('email')}
               onBlur={() => handleBlur('email')}
-              placeholder={'Vui lòng nhập emal'}
+              placeholder={'Vui lòng nhập email'}
             />
             <InputComp
               defaultValue={values.username}

@@ -12,6 +12,7 @@ import {
 } from '@react-navigation/native';
 import PushNotification, {Importance} from 'react-native-push-notification';
 import messaging from '@react-native-firebase/messaging';
+import {useNetInfo} from '@react-native-community/netinfo';
 
 import {Button, DeviceComponent, ScreenDefault} from '../../components';
 import {Colors} from '../../config';
@@ -30,7 +31,7 @@ interface HomeProps {
 
 export const HomeScreen = ModalLoading()(
   ({onSetLoading, onCloseLoading}: HomeProps) => {
-    // const netInfo = useNetInfo();
+    const netInfo = useNetInfo();
 
     const navigation = useNavigation<NavigationProp<any>>();
     const {loading, data} = useSelector((state: RootState) => state.device);
@@ -51,7 +52,6 @@ export const HomeScreen = ModalLoading()(
     };
 
     useEffect(() => {
-      // Get the device token
       if (tokenAcc) {
         messaging()
           .getToken()
@@ -72,13 +72,11 @@ export const HomeScreen = ModalLoading()(
             subText: 'Thông báo bật tắt thiết bị',
             bigLargeIcon: 'ic_launcher',
             color: Colors.primary,
-            /* iOS and Android properties */
             id: 0,
-            title: remoteMessage.notification.title, // (optional)
-            message: remoteMessage.notification.body!, // (required)
+            title: remoteMessage.notification.title, 
+            message: remoteMessage.notification.body!, 
             playSound: true,
             soundName: 'default',
-            number: 10,
           });
         }
       });
@@ -89,7 +87,9 @@ export const HomeScreen = ModalLoading()(
       if (tokenAcc) {
         PushNotification.configure({
           onRegister: async function (token) {
-            dispatch(updateUsers({deviceToken: token}));
+            if (token) {
+              dispatch(updateUsers({deviceToken: token}));
+            }
           },
 
           onNotification: function (notification) {
@@ -101,10 +101,9 @@ export const HomeScreen = ModalLoading()(
               subText: 'Thông báo bật tắt thiết bị',
               bigLargeIcon: 'ic_launcher',
               color: Colors.primary,
-              /* iOS and Android properties */
               id: 0,
-              title: notification.data.title, // (optional)
-              message: notification.data.content, // (required)
+              title: notification.data.title, 
+              message: notification.data.content, 
               playSound: true,
               soundName: 'default',
               number: 10,
@@ -115,7 +114,6 @@ export const HomeScreen = ModalLoading()(
           onAction: function (notification) {},
 
           onRegistrationError: function (err) {
-            console.error(err.message, err);
           },
 
           permissions: {
@@ -131,22 +129,22 @@ export const HomeScreen = ModalLoading()(
 
         PushNotification.createChannel(
           {
-            channelId: 'local-channel', // (required)
-            channelName: 'My channel', // (required)
-            channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
-            playSound: false, // (optional) default: true
-            soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
-            importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
-            vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
+            channelId: 'local-channel', 
+            channelName: 'My channel', 
+            channelDescription: 'A channel to categorise your notifications',
+            playSound: false,
+            soundName: 'default',
+            importance: Importance.HIGH,
+            vibrate: true,
           },
-          created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
+          created => true,
         );
       }
     }, [tokenAcc]);
 
     useEffect(() => {
       isFocused && dispatch(getDevices());
-    }, [isFocused]);
+    }, [isFocused, netInfo]);
 
     useEffect(() => {
       if (loading && !data) {

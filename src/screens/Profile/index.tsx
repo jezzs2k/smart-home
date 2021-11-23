@@ -6,39 +6,26 @@ import {RenderShow} from './RenderShowInfo';
 // import {RenderEdit} from './RenderFormEdit';
 import {ModalLoading} from '../../components/ModalLoading';
 import {RootState} from '../../stores/stores';
+import { getUser } from '../../stores/factories/user';
 
 export const Profile = ModalLoading()(() => {
   const dispatch = useDispatch();
-  const {user} = useSelector((state: RootState) => state.auth);
+  const {data} = useSelector((state: RootState) => state.user);
 
   const [isEdit, setIsEdit] = useState(false);
   const handleNavigation = () => {
     //   setIsEdit(true);
   };
 
-  const handleSubmit = () => {
-    //   setStatusModal(true);
-  };
 
-  // useEffect(() => {
-  //   if (retrived && Object.entries(retrived).length > 0) {
-  //     setIsEdit(false);
-  //     dispatch(getUserInfo());
-  //     dispatch(resetUpdate());
-  //     setStatusModal(false);
-  //   }
-  // }, [retrived, dispatch, setStatusModal]);
-
-  // useEffect(() => {
-  //   if (error) {
-  //     setStatusModal(false);
-  //   }
-  // }, [error, setStatusModal]);
+  useEffect(() => {
+    dispatch(getUser())
+  }, [])
 
   return (
     <View style={styles.container}>
       <View style={styles.containerChild}>
-        <RenderShow onPress={handleNavigation} retrivedProfile={user!} />
+        <RenderShow onPress={handleNavigation} retrivedProfile={data!} />
       </View>
     </View>
   );

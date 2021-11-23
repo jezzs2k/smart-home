@@ -215,7 +215,7 @@ export const SettingScreen = ModalLoading()(
             justifyContent: 'center',
           }}>
           <Text style={{fontSize: 16, color: 'gray', paddingVertical: 14}}>
-            Thoát
+            Đăng xuất
           </Text>
         </TouchableOpacity>
       </View>

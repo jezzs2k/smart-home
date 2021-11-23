@@ -108,7 +108,6 @@ export const ScanQrCode = ModalLoading()(
     useEffect(() => {
       dispatch(resetDevice());
       request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION).then(result => {
-        console.log('result', result);
       });
     }, []);
 

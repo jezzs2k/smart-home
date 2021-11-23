@@ -2,8 +2,7 @@ import {Formik} from 'formik';
 import React, {useEffect} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import database from '@react-native-firebase/database';
-import WifiManager from 'react-native-wifi-reborn';
-import {useNetInfo} from '@react-native-community/netinfo';
+import SendIntentAndroid  from 'react-native-send-intent';
 
 import {Button, Form, InputComp} from '../../components';
 import {
@@ -20,8 +19,8 @@ import {
 import {NavigationScreen} from '../../config/NavigationScreen';
 import useModalNotification from '../../Hooks/useModalNotification';
 import {WifiInfo} from '../FormUploadDevices';
-import { useAppDispatch } from '../../stores/stores';
-import { resetDevice } from '../../stores/device';
+import {useAppDispatch} from '../../stores/stores';
+import {resetDevice} from '../../stores/device';
 
 interface WifiT {
   ssid: string;
@@ -36,12 +35,19 @@ let dataRealTime: any = null;
 let isSubmited = false;
 
 export const ConnectEsp = ModalLoading()(
-  ({onSetLoading, onCloseLoading, loading}: ConnectEspProps) => {
+  ({onSetLoading, onCloseLoading}: ConnectEspProps) => {
     const dispatch = useAppDispatch();
-    const netInfo = useNetInfo();
+    
+
+    const route =
+      useRoute<RouteProp<{params: {idEsp: string; wifiInfo: WifiInfo}}>>();
+    const {ssid, password, isWep = true} = route.params.wifiInfo;
+    const navigation = useNavigation<NavigationProp<any>>();
+
+
     const [ModalComponent, onSetModalVisible, _visible, setContent] =
       useModalNotification({
-        customTextTitle: 'Kết nối ESP 8266',
+        customTextTitle: `Đã Kết nối tới WIFI: ${ssid}`,
         customTextCancel: 'Đóng',
         onCancel: () => {
           if (dataRealTime) {
@@ -58,21 +64,24 @@ export const ConnectEsp = ModalLoading()(
         isJustShowCancel: true,
       });
 
-    const route =
-      useRoute<RouteProp<{params: {idEsp: string; wifiInfo: WifiInfo}}>>();
-    const {ssid, password, isWep = true} = route.params.wifiInfo;
-    const navigation = useNavigation<NavigationProp<any>>();
+      const handleConnectEsp = () => {
+        SendIntentAndroid.openSettings('android.settings.WIFI_SETTINGS')
+      };
 
-    const handleCheckStatusWifi = async () => {
-      const isConnected = await WifiManager.connectionStatus();
-      if (!isConnected) {
-        onSetLoading();
-      }
-    };
+      const [ModalComponent1, onSetModalVisible1, _visible1, setContent1] =
+      useModalNotification({
+        customTextTitle: 'Kết nối ESP 8266',
+        customTextContent: `Kết nối tới WIFI: ${ssid} và quay lại app thiết lập hệ thống !`,
+        customTextCancel: 'Đóng',
+        customTextAccept: 'Đồng ý',
+        onCancel: () => navigation.navigate(NavigationScreen.Home),
+        onAccept: handleConnectEsp,
+      });
+
 
     const handleSubmit = (values: WifiT) => {
-      isSubmited = true;
       onSetLoading();
+      isSubmited = true;
       fetch(
         `http://192.168.4.1/setup?ssid=${values.ssid.trim()}&password=${values.password.trim()}&idThisEsp=${
           route.params.idEsp
@@ -80,66 +89,20 @@ export const ConnectEsp = ModalLoading()(
       )
         .then(data => {})
         .catch(e => {
-          // setTimeout(() => {
-          //   if (loading) {
-          //     onCloseLoading();
-          //   }
-          // }, 3000);
+          onCloseLoading();
+          setContent('Thiết bị của bạn đã được kết nối thành công!');
+          onSetModalVisible(true);
         });
     };
 
     useEffect(() => {
-      handleCheckStatusWifi();
-      if (
-        netInfo &&
-        netInfo.isConnected &&
-        netInfo.details?.ssid === 'SMART_HOME_ESP8266'
-      ) {
-        onCloseLoading();
-      } else if (!isSubmited) {
-        WifiManager.connectToProtectedSSID(ssid, password, isWep).then(
-          () => {
-            console.log('Connected successfully!');
-          },
-          e => {},
-        );
-      }
-    }, [netInfo]);
-
-    useEffect(() => {
-      database()
-        .ref('/' + route.params?.idEsp)
-        .once('value')
-        .then(snapshot => {
-          const data = snapshot.val();
-          dataRealTime = data;
-
-          if (isSubmited) {
-            onCloseLoading();
-
-            if (data.isConnected) {
-              setContent('Thiết bị của bạn đã được kết nối thành công!');
-            } else {
-              setContent(
-                'Vui lòng kiểm tra lại internet của bạn và kết nối lại!',
-              );
-            }
-
-            onSetModalVisible(true);
-          }
-        });
-
-      return () => {
-        onCloseLoading();
-        database()
-          .ref('/' + route.params?.idEsp)
-          .off();
-      };
+      onSetModalVisible1(true);
     }, []);
 
     return (
       <View style={styles.container}>
         <ModalComponent />
+        <ModalComponent1 />
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
           {({handleChange, handleBlur, handleSubmit, values}) => (
             <Form
