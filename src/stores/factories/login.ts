@@ -1,8 +1,8 @@
-import {KeyStogare} from './../../config/KeyStorage';
-import {AxiosResponse} from 'axios';
-import {axiosInstance, setKey} from '../../utils';
-import {reject, resolves, start} from '../auth';
-import {AppDispatch} from '../stores';
+import { AxiosResponse } from "axios";
+import { setToken } from "../../config/stores/setToken";
+import { axiosInstance } from "../../utils";
+import { reject, resolves, start } from "../auth";
+import { AppDispatch } from "../stores";
 
 export interface LoginRespone {
   token: string;
@@ -22,26 +22,28 @@ export interface User {
 }
 
 export const login =
-  ({username, password}: {username: string; password: string}) =>
+  ({ username, password }: { username: string; password: string }) =>
   async (dispatch: AppDispatch) => {
     dispatch(start());
     try {
       const result: AxiosResponse<LoginRespone> = await axiosInstance.post(
-        '/users/login',
+        "/users/login",
         {
           username,
           password,
-        },
+        }
       );
 
       if (result?.data?.token) {
-        await setKey(KeyStogare.Token, result.data.token);
+        await setToken(result.data.token);
 
-        dispatch(resolves({user: result.data.user, token: result.data.token}));
+        dispatch(
+          resolves({ user: result.data.user, token: result.data.token })
+        );
       } else {
-        dispatch(reject({error: 'Internal Server'}));
+        dispatch(reject({ error: "Internal Server" }));
       }
     } catch (error) {
-      dispatch(reject({error: error}));
+      dispatch(reject({ error: error }));
     }
   };

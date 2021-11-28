@@ -1,5 +1,5 @@
-import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {User} from './factories/user';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { User } from "./factories/user";
 
 interface PayloadActionType {
   data?: User | null;
@@ -17,10 +17,10 @@ const initState: UserStateReducer = {
 };
 
 const userSlice = createSlice({
-  name: 'users',
+  name: "users",
   initialState: initState,
   reducers: {
-    start: state => ({...state, loading: true}),
+    start: (state) => ({ ...state, loading: true }),
     resolves: (state, action: PayloadAction<PayloadActionType>) => ({
       ...state,
       data: action.payload.data,
@@ -33,7 +33,7 @@ const userSlice = createSlice({
       loading: false,
       data: null,
     }),
-    resetDataUser: state => ({
+    resetDataUser: (state) => ({
       ...state,
       loading: false,
       data: null,
@@ -42,5 +42,5 @@ const userSlice = createSlice({
   },
 });
 
-export const {start, reject, resolves, resetDataUser} = userSlice.actions;
+export const { start, reject, resolves, resetDataUser } = userSlice.actions;
 export default userSlice.reducer;

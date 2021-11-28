@@ -1,14 +1,15 @@
-import {KeyStogare} from './../../config/KeyStorage';
-import {AxiosResponse} from 'axios';
-import {axiosInstance, getKey} from '../../utils';
+import { AxiosResponse } from "axios";
+import { axiosInstance } from "../../utils";
 import {
   reject,
   resolves,
   start,
   uploadDeviceSuccess,
   deviceById,
-} from '../device';
-import {AppDispatch} from '../stores';
+  deleteDeivece,
+} from "../device";
+import { AppDispatch } from "../stores";
+import { getToken } from "../../config/stores/getToken";
 
 export interface DeviceT {
   isConnected: boolean;
@@ -38,54 +39,55 @@ export interface CreatedBy {
 }
 
 export const getDevices = () => async (dispatch: AppDispatch) => {
-  const token = await getKey(KeyStogare.Token);
-
+  const token = await getToken();
   let config = {
     headers: {
-      Authorization: 'Bearer ' + token,
+      Authorization: "Bearer " + token,
     },
   };
 
   dispatch(start());
   try {
     const result: AxiosResponse<DeviceT[]> = await axiosInstance.get(
-      '/devices',
-      config,
+      "/devices",
+      config
     );
 
     if (result) {
-      dispatch(resolves({data: result.data}));
+      console.log("result.data ", result.data);
+
+      dispatch(resolves({ data: result.data }));
     } else {
-      dispatch(reject({error: 'Internal Server'}));
+      dispatch(reject({ error: "Internal Server" }));
     }
   } catch (error) {
-    dispatch(reject({error: error}));
+    dispatch(reject({ error: error }));
   }
 };
 
 export const getDeviceById = (id: string) => async (dispatch: AppDispatch) => {
-  const token = await getKey(KeyStogare.Token);
+  const token = await getToken();
 
   let config = {
     headers: {
-      Authorization: 'Bearer ' + token,
+      Authorization: "Bearer " + token,
     },
   };
 
   dispatch(start());
   try {
     const result: AxiosResponse<DeviceT> = await axiosInstance.get(
-      '/devices/' + id,
-      config,
+      "/devices/" + id,
+      config
     );
 
     if (result) {
-      dispatch(deviceById({deviceById: result.data}));
+      dispatch(deviceById({ deviceById: result.data }));
     } else {
-      dispatch(reject({error: 'Internal Server'}));
+      dispatch(reject({ error: "Internal Server" }));
     }
   } catch (error) {
-    dispatch(reject({error: error}));
+    dispatch(reject({ error: error }));
   }
 };
 
@@ -97,28 +99,55 @@ export interface DeviceUploadParamsT {
 
 export const upLoadDevices =
   (parmas: DeviceUploadParamsT) => async (dispatch: AppDispatch) => {
-    const token = await getKey(KeyStogare.Token);
+    const token = await getToken();
 
     let config = {
       headers: {
-        Authorization: 'Bearer ' + token,
+        Authorization: "Bearer " + token,
       },
     };
 
     dispatch(start());
     try {
       const result: AxiosResponse<DeviceT> = await axiosInstance.post(
-        '/devices',
+        "/devices",
         parmas,
-        config,
+        config
       );
 
       if (result) {
-        dispatch(uploadDeviceSuccess({deviceUploaded: result.data}));
+        dispatch(uploadDeviceSuccess({ deviceUploaded: result.data }));
       } else {
-        dispatch(reject({error: 'Internal Server'}));
+        dispatch(reject({ error: "Internal Server" }));
       }
     } catch (error) {
-      dispatch(reject({error: error}));
+      dispatch(reject({ error: error }));
+    }
+  };
+
+export const deleteDevice =
+  (deviceId: string) => async (dispatch: AppDispatch) => {
+    const token = await getToken();
+
+    let config = {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    };
+
+    dispatch(start());
+    try {
+      const result: AxiosResponse<DeviceT> = await axiosInstance.delete(
+        "/devices" + "/" + deviceId,
+        config
+      );
+
+      if (result) {
+        dispatch(deleteDeivece());
+      } else {
+        dispatch(reject({ error: "Internal Server" }));
+      }
+    } catch (error) {
+      dispatch(reject({ error: error }));
     }
   };
