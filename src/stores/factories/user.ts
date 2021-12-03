@@ -1,14 +1,19 @@
-import { AxiosResponse } from "axios";
-import { axiosInstance } from "../../utils";
-import { reject, resolves, start } from "../user";
-import { AppDispatch } from "../stores";
-import { getToken } from "../../config/stores/getToken";
+import {AxiosResponse} from 'axios';
+import {axiosInstance} from '../../utils';
+import {reject, resolves, start} from '../user';
+import {AppDispatch} from '../stores';
+import {getToken} from '../../config/stores/getToken';
 
 export interface WorkerT {
   isRunning: boolean;
-  name: string;
-  seconds: number;
+  name?: string;
+  name1?: string;
+  name2?: string;
+  seconds?: number;
   createdAt: Date;
+  isRealLifeTime: boolean;
+  dateOff?: string;
+  dateOn?: string;
 }
 export interface User {
   role: string;
@@ -43,7 +48,7 @@ export const updateUsers =
 
       let config = {
         headers: {
-          Authorization: "Bearer " + token,
+          Authorization: 'Bearer ' + token,
         },
       };
 
@@ -66,18 +71,18 @@ export const updateUsers =
       }
 
       const result: AxiosResponse<User> = await axiosInstance.put(
-        "/users",
+        '/users',
         params,
-        config
+        config,
       );
 
       if (result?.data) {
-        dispatch(resolves({ data: result.data }));
+        dispatch(resolves({data: result.data}));
       } else {
-        dispatch(reject({ error: "Internal Server" }));
+        dispatch(reject({error: 'Internal Server'}));
       }
     } catch (error) {
-      dispatch(reject({ error: error }));
+      dispatch(reject({error: error}));
     }
   };
 
@@ -89,21 +94,21 @@ export const getUser = () => async (dispatch: AppDispatch) => {
 
     let config = {
       headers: {
-        Authorization: "Bearer " + token,
+        Authorization: 'Bearer ' + token,
       },
     };
 
     const result: AxiosResponse<User> = await axiosInstance.get(
-      "/users",
-      config
+      '/users',
+      config,
     );
 
     if (result?.data) {
-      dispatch(resolves({ data: result.data }));
+      dispatch(resolves({data: result.data}));
     } else {
-      dispatch(reject({ error: "Internal Server" }));
+      dispatch(reject({error: 'Internal Server'}));
     }
   } catch (error) {
-    dispatch(reject({ error: error }));
+    dispatch(reject({error: error}));
   }
 };

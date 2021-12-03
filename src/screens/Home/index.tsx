@@ -1,10 +1,5 @@
 import React, {useEffect} from 'react';
-import {
-  FlatList,
-  Platform,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {FlatList, Platform, StyleSheet, View} from 'react-native';
 import {
   NavigationProp,
   useIsFocused,
@@ -13,6 +8,8 @@ import {
 import PushNotification, {Importance} from 'react-native-push-notification';
 import messaging from '@react-native-firebase/messaging';
 import {useNetInfo} from '@react-native-community/netinfo';
+
+import {DeviceForm} from '../DevicesForm';
 
 import {Button, DeviceComponent, ScreenDefault} from '../../components';
 import {Colors} from '../../config';
@@ -73,8 +70,8 @@ export const HomeScreen = ModalLoading()(
             bigLargeIcon: 'ic_launcher',
             color: Colors.primary,
             id: 0,
-            title: remoteMessage.notification.title, 
-            message: remoteMessage.notification.body!, 
+            title: remoteMessage.notification.title,
+            message: remoteMessage.notification.body!,
             playSound: true,
             soundName: 'default',
           });
@@ -102,8 +99,8 @@ export const HomeScreen = ModalLoading()(
               bigLargeIcon: 'ic_launcher',
               color: Colors.primary,
               id: 0,
-              title: notification.data.title, 
-              message: notification.data.content, 
+              title: notification.data.title,
+              message: notification.data.content,
               playSound: true,
               soundName: 'default',
               number: 10,
@@ -113,8 +110,7 @@ export const HomeScreen = ModalLoading()(
 
           onAction: function (notification) {},
 
-          onRegistrationError: function (err) {
-          },
+          onRegistrationError: function (err) {},
 
           permissions: {
             alert: true,
@@ -129,8 +125,8 @@ export const HomeScreen = ModalLoading()(
 
         PushNotification.createChannel(
           {
-            channelId: 'local-channel', 
-            channelName: 'My channel', 
+            channelId: 'local-channel',
+            channelName: 'My channel',
             channelDescription: 'A channel to categorise your notifications',
             playSound: false,
             soundName: 'default',
@@ -175,6 +171,8 @@ export const HomeScreen = ModalLoading()(
         />
       );
     };
+
+    // return <DeviceForm />;
 
     if (handleCheckData(data)) {
       return (

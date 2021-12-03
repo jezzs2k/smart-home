@@ -36,18 +36,25 @@ const BlueBg = require('../../assets/images/blue-bg.jpg');
 
 let dataFirebase: any = {};
 
+export interface DataWorkerT {
+  isRunning: boolean;
+  name?: string;
+  seconds?: number;
+  remainSeconds?: number;
+  name1?: string;
+  name2?: string;
+  isRealLifeTime: boolean;
+  dateOff?: string;
+  dateOn?: string;
+}
+
 interface DeviceDetailsProps extends IModalLoadingPassProp {}
 
 export const DeviceDetails = ModalLoading()(
   ({onCloseLoading, onSetLoading}: DeviceDetailsProps) => {
     const isFocused = useIsFocused();
     const [isTurnOn, setIsTurnOn] = useState(false);
-    const [dataWorker, setDataWorker] = useState<{
-      isRunning: boolean;
-      name: string;
-      seconds: number;
-      remainSeconds: number;
-    } | null>(null);
+    const [dataWorker, setDataWorker] = useState<DataWorkerT | null>(null);
     const [listItem, setListItem] = useState([
       {
         title: 'Thời gian sử dụng: ',
@@ -127,8 +134,11 @@ export const DeviceDetails = ModalLoading()(
 
     const handleGetWorker = (workers: WorkerT[]) => {
       const worker = workers.find(item => item.name === itemDevice.deviceId);
+      const worker1 = workers.find(
+        item => item.name1 === itemDevice.deviceId + 'true',
+      );
 
-      if (!worker) {
+      if (!worker && !worker1) {
         return;
       }
 
@@ -136,15 +146,30 @@ export const DeviceDetails = ModalLoading()(
 
       const startDate = new Date(worker?.createdAt!);
 
-      setDataWorker({
-        isRunning: worker?.isRunning!,
-        name: worker?.name!,
-        seconds: worker?.seconds!,
-        remainSeconds:
-          worker?.seconds! +
-          38 -
-          Math.round((currentDate.getTime() - startDate.getTime()) / 1000),
-      });
+      if (worker1) {
+        setDataWorker({
+          isRunning: worker1?.isRunning!,
+          remainSeconds: 0,
+          dateOff: worker1?.dateOff,
+          dateOn: worker1?.dateOn,
+          isRealLifeTime: worker1.isRealLifeTime,
+          name1: worker1?.name1,
+          name2: worker1?.name2,
+        });
+      }
+
+      if (worker) {
+        setDataWorker({
+          isRunning: worker?.isRunning!,
+          name: worker?.name!,
+          seconds: worker?.seconds!,
+          remainSeconds:
+            worker?.seconds! +
+            38 -
+            Math.round((currentDate.getTime() - startDate.getTime()) / 1000),
+          isRealLifeTime: worker.isRealLifeTime,
+        });
+      }
     };
 
     useEffect(() => {
