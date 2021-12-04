@@ -193,26 +193,24 @@ export const DeviceDetails = ModalLoading()(
 
     useEffect(() => {
       if (isFocused) {
-        if (itemDevice.deviceId) {
-          onSetLoading();
-          database()
-            .ref('/' + itemDevice.deviceId)
-            .on('value', snapshot => {
-              onCloseLoading();
-              const data = snapshot.val();
-              dataFirebase = data;
+        onSetLoading();
+        database()
+          .ref('/' + itemDevice.deviceId)
+          .on('value', snapshot => {
+            onCloseLoading();
+            const data = snapshot.val();
+            dataFirebase = data;
 
-              dataWorker && dispatch(getUser());
+            dataWorker && dispatch(getUser());
 
-              handleSetDataMinute(data);
+            handleSetDataMinute(data);
 
-              if (data.isTurnOn === 'true') {
-                !isTurnOn && setIsTurnOn(true);
-              } else {
-                isTurnOn && setIsTurnOn(false);
-              }
-            });
-        }
+            if (data.isTurnOn === 'true') {
+              !isTurnOn && setIsTurnOn(true);
+            } else {
+              isTurnOn && setIsTurnOn(false);
+            }
+          });
       }
 
       return () => {

@@ -69,12 +69,11 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
   const [stateTab, useStateTab] = useState({
     index: 0,
     routes: [
-      {key: 'first', title: 'khoảng thời gian'},
-      {key: 'second', title: 'Thời gian thực'},
+      {key: 'first1', title: 'khoảng thời gian'},
+      {key: 'second1', title: 'Thời gian thực'},
     ],
   });
 
-  //datepicker
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
   const [turnOnTime, setTurnOnTime] = useState(
@@ -123,8 +122,9 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
   };
 
   const renderScene = SceneMap({
-    first: () => (
+    first1: () => (
       <View
+        key={'first1'}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -199,13 +199,14 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
         />
       </View>
     ),
-    second: () => (
+    second1: () => (
       <View
         style={{
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
-        }}>
+        }}
+        key={'second1'}>
         <View
           style={{
             justifyContent: 'flex-start',
@@ -393,7 +394,7 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
   return isHasCountTime ? (
     <ImageBackground source={BG} style={styles.container}>
       <ModalComponent />
-      {dataCountTime && isRealLifeTime ? (
+      {isRealLifeTime ? (
         <View
           style={{
             backgroundColor: Colors.BG_INPUT,
@@ -459,8 +460,11 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
       <CountDown
         size={30}
         until={
-          isRealLifeTime && dataCountTime
-            ? (new Date(turnOffTime!).getTime() - new Date().getTime()) / 1000
+          isRealLifeTime
+            ? (new Date(turnOffTime!).getTime() -
+                new Date().getTime() +
+                42 * 1000) /
+              1000
             : second
         }
         onFinish={handleOnOff}

@@ -72,7 +72,10 @@ export const DeviceComponent = ({
 
     return (
       <TouchableOpacity
-        style={styles.container}
+        style={[
+          styles.container,
+          isTurnOn && {backgroundColor: 'rgb(255, 210, 63)'},
+        ]}
         onPress={onPress}
         key={keyItem}>
         <ModalComponent />

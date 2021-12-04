@@ -18,7 +18,7 @@ export function formatDateToString(
   }
 }
 
-export function formatTimeToString(date?: Date | string, formatOutput = 'p') {
+export function formatTimeToString(date?: Date | string, formatOutput = 'pp') {
   if (date == null) {
     return '';
   }

@@ -2,7 +2,11 @@ import React, {useEffect, useState} from 'react';
 import wifi from 'react-native-android-wifi';
 import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import uuid from 'react-native-uuid';
-import {NavigationProp, useNavigation} from '@react-navigation/native';
+import {
+  NavigationProp,
+  useIsFocused,
+  useNavigation,
+} from '@react-navigation/native';
 import {Button} from '../../../components';
 
 import {Colors} from '../../../config';
@@ -14,9 +18,9 @@ import {
   IModalLoadingPassProp,
   ModalLoading,
 } from '../../../components/ModalLoading';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../stores/stores';
-import { idEspJust_36_char } from '../../../utils';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../../stores/stores';
+import {idEspJust_36_char} from '../../../utils';
 
 interface AddAutomaticsProps extends IModalLoadingPassProp {}
 
@@ -25,6 +29,7 @@ export const AddAutomatics = ModalLoading()(
     const [dataWifi, setDataWifi] = useState([]);
     const [idEsp, setIdEsp] = useState(idEspJust_36_char());
     const navigation = useNavigation<NavigationProp<any>>();
+    const isFocused = useIsFocused();
 
     const {token} = useSelector((state: RootState) => state.auth);
 
@@ -32,7 +37,7 @@ export const AddAutomatics = ModalLoading()(
       if (!token) {
         navigation.navigate(NavigationScreen.Login);
         return;
-      };
+      }
       onSetLoading();
       wifi.reScanAndLoadWifiList(
         (wifiStringList: string) => {
@@ -47,17 +52,20 @@ export const AddAutomatics = ModalLoading()(
             setDataWifi(data);
           }
         },
-        (error: any) => {
-        },
+        (error: any) => {},
       );
     };
 
     useEffect(() => {
+      setDataWifi([]);
+    }, [isFocused]);
+
+    useEffect(() => {
       return () => {
-        setIdEsp(idEspJust_36_char())
+        setIdEsp(idEspJust_36_char());
         setDataWifi([]);
       };
-    }, [])
+    }, []);
 
     return dataWifi.length > 0 ? (
       <FlatList

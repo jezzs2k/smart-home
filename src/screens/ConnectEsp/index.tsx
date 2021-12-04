@@ -1,8 +1,9 @@
 import {Formik} from 'formik';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import database from '@react-native-firebase/database';
-import SendIntentAndroid  from 'react-native-send-intent';
+import SendIntentAndroid from 'react-native-send-intent';
+import {useNetInfo} from '@react-native-community/netinfo';
 
 import {Button, Form, InputComp} from '../../components';
 import {
@@ -37,13 +38,14 @@ let isSubmited = false;
 export const ConnectEsp = ModalLoading()(
   ({onSetLoading, onCloseLoading}: ConnectEspProps) => {
     const dispatch = useAppDispatch();
-    
+
+    const netInfo = useNetInfo();
+    const [isCheck, setIsCheck] = useState(false);
 
     const route =
       useRoute<RouteProp<{params: {idEsp: string; wifiInfo: WifiInfo}}>>();
     const {ssid, password, isWep = true} = route.params.wifiInfo;
     const navigation = useNavigation<NavigationProp<any>>();
-
 
     const [ModalComponent, onSetModalVisible, _visible, setContent] =
       useModalNotification({
@@ -64,11 +66,11 @@ export const ConnectEsp = ModalLoading()(
         isJustShowCancel: true,
       });
 
-      const handleConnectEsp = () => {
-        SendIntentAndroid.openSettings('android.settings.WIFI_SETTINGS')
-      };
+    const handleConnectEsp = () => {
+      SendIntentAndroid.openSettings('android.settings.WIFI_SETTINGS');
+    };
 
-      const [ModalComponent1, onSetModalVisible1, _visible1, setContent1] =
+    const [ModalComponent1, onSetModalVisible1, _visible1, setContent1] =
       useModalNotification({
         customTextTitle: 'Kết nối ESP 8266',
         customTextContent: `Kết nối tới WIFI: ${ssid} và quay lại app thiết lập hệ thống !`,
@@ -77,7 +79,6 @@ export const ConnectEsp = ModalLoading()(
         onCancel: () => navigation.navigate(NavigationScreen.Home),
         onAccept: handleConnectEsp,
       });
-
 
     const handleSubmit = (values: WifiT) => {
       onSetLoading();
@@ -89,15 +90,40 @@ export const ConnectEsp = ModalLoading()(
       )
         .then(data => {})
         .catch(e => {
-          onCloseLoading();
-          setContent('Thiết bị của bạn đã được kết nối thành công!');
-          onSetModalVisible(true);
+          setIsCheck(true);
         });
     };
 
     useEffect(() => {
       onSetModalVisible1(true);
     }, []);
+
+    useEffect(() => {
+      if (
+        netInfo.isConnected &&
+        netInfo.details.ipAddress !== '192.168.4.1' &&
+        isCheck
+      ) {
+        database()
+          .ref('/' + route.params.idEsp)
+          .on('value', snapshot => {
+            const data = snapshot.val();
+            if (data.isConnected === 'true') {
+              onCloseLoading();
+              setContent('Thiết bị của bạn đã được kết nối thành công!');
+              onSetModalVisible(true);
+            } else {
+              onCloseLoading();
+              setContent(
+                'Thiết bị của kết nối thành bại,Vui lòng kiểm tra lại',
+              );
+              onSetModalVisible(true);
+            }
+
+            setIsCheck(false);
+          });
+      }
+    }, [netInfo, isCheck]);
 
     return (
       <View style={styles.container}>
