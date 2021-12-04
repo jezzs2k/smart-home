@@ -181,8 +181,6 @@ export const DeviceDetails = ModalLoading()(
     useEffect(() => {
       if (data?.workers && !loading) {
         handleGetWorker(data.workers);
-      } else {
-        setDataWorker(null);
       }
     }, [data, loading]);
 

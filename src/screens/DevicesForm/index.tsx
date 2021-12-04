@@ -1,13 +1,23 @@
-import {useRoute} from '@react-navigation/core';
+import {
+  NavigationProp,
+  RouteProp,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/core';
 import {Formik} from 'formik';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {Button, DeviceComponent, Form, InputComp} from '../../components';
+import {Button, Form, InputComp} from '../../components';
 import SelectDropdown from 'react-native-select-dropdown';
 import {Colors} from '../../config';
 
-import {widthPercentageToDP} from 'react-native-responsive-screen';
 import {IconItemT, ListIcon} from '../../utils/common';
+import {DeviceT, updateDevices} from '../../stores/factories/device';
+import {RootState, useAppDispatch} from '../../stores/stores';
+import {useSelector} from 'react-redux';
+import useModalNotification from '../../Hooks/useModalNotification';
+import {NavigationScreen} from '../../config/NavigationScreen';
+import {resetUpdateDevice} from '../../stores/device';
 
 interface DeviceFormProps {}
 
@@ -19,20 +29,61 @@ interface DeviceForm {
 const initialValues = {deviceName: '', icon: 0};
 
 export const DeviceForm = ({}: DeviceFormProps) => {
+  const dispatch = useAppDispatch();
   const [iconSelector, setIconSelector] = useState<IconItemT | null>(
     ListIcon[0],
   );
-  const route = useRoute();
+  const {loading, deviceUpdated} = useSelector(
+    (state: RootState) => state.device,
+  );
+  const route = useRoute<RouteProp<{params: {item: DeviceT}}>>();
+  const navigation = useNavigation<NavigationProp<any>>();
 
-  const handleSubmit = (_values: DeviceForm) => {};
+  const device = route.params.item;
 
+  const handleSubmit = (values: DeviceForm) => {
+    dispatch(
+      updateDevices({
+        deviceName: values.deviceName,
+        icon: iconSelector?.index,
+        deviceId: device.deviceId,
+      }),
+    );
+  };
+
+  const [ModalComponent, onSetModalVisible, visible, setContent] =
+    useModalNotification({
+      customTextTitle: 'Kết nối thành công',
+      customTextContent: 'Sửa thiết bị thành công',
+      customTextCancel: 'Đóng',
+      isJustShowCancel: true,
+      onCancel: () => {
+        dispatch(resetUpdateDevice());
+        navigation.navigate(NavigationScreen.Home);
+      },
+    });
+
+  useEffect(() => {
+    const iconDefault = ListIcon.find(
+      item => item.index === (device?.icon || 0),
+    );
+
+    iconDefault && setIconSelector(iconDefault);
+  }, []);
+
+  useEffect(() => {
+    if (!loading && deviceUpdated) {
+      onSetModalVisible();
+    }
+  }, [deviceUpdated]);
   return (
     <React.Fragment>
+      <ModalComponent />
       <Formik initialValues={initialValues} onSubmit={handleSubmit}>
         {({handleChange, handleBlur, handleSubmit, values}) => (
           <Form titleHeader={'Sửa thiết bị'}>
             <InputComp
-              defaultValue={'item.title'}
+              defaultValue={device.deviceName}
               onChange={handleChange('deviceName')}
               onBlur={() => handleBlur('deviceName')}
               placeholder={'Vui lòng nhập tên thiết bị'}
@@ -51,7 +102,7 @@ export const DeviceForm = ({}: DeviceFormProps) => {
                 onSelect={(selectedItem: IconItemT, _index: number) => {
                   setIconSelector(selectedItem);
                 }}
-                defaultValue={ListIcon[0]}
+                defaultValue={iconSelector}
                 buttonStyle={{
                   borderRadius: 8,
                   backgroundColor: Colors.BG_INPUT,
@@ -67,13 +118,9 @@ export const DeviceForm = ({}: DeviceFormProps) => {
                   selectedItem: any,
                   _index: number,
                 ) => {
-                  // text represented after item is selected
-                  // if data array is an array of objects then return selectedItem.property to render after item is selected
                   return selectedItem.title;
                 }}
                 rowTextForSelection={(item: any, _index: number) => {
-                  // text represented for each item in dropdown
-                  // if data array is an array of objects then return item.property to represent item in dropdown
                   return item.title;
                 }}
               />
@@ -89,7 +136,7 @@ export const DeviceForm = ({}: DeviceFormProps) => {
               contentBtnStyle={{
                 padding: 13,
               }}
-              loading={false}
+              loading={loading}
             />
           </Form>
         )}

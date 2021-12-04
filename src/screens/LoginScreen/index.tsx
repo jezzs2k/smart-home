@@ -4,7 +4,11 @@ import {Formik} from 'formik';
 import {Form, InputComp, ModalNotification} from '../../components';
 import {Button} from '../../components';
 import {Colors} from '../../config';
-import {NavigationProp, useFocusEffect, useNavigation} from '@react-navigation/core';
+import {
+  NavigationProp,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/core';
 import {RootState, useAppDispatch} from '../../stores/stores';
 import {login} from '../../stores/factories/login';
 import {useSelector} from 'react-redux';
@@ -27,16 +31,16 @@ export const LoginScreen = ({}: LoginScreenProps) => {
   const dispatch = useAppDispatch();
   const {loading, token, error} = useSelector((state: RootState) => state.auth);
 
-  const [ModalComponent, onSetModalVisible,] = useModalNotification({
-                                                                      customTextContent:'Lỗi hệ thống làm ơn đăng nhập lại !',
-                                                                      customTextAccept:'Đồng ý',
-                                                                      customTextTitle:'Thông báo lỗi',
-                                                                      customTextCancel:'Đóng', 
-                                                                    });
+  const [ModalComponent, onSetModalVisible] = useModalNotification({
+    customTextContent: 'Lỗi hệ thống làm ơn đăng nhập lại !',
+    customTextAccept: 'Đồng ý',
+    customTextTitle: 'Thông báo lỗi',
+    customTextCancel: 'Đóng',
+  });
 
   const handleOpenModal = () => {
     onSetModalVisible(true);
-  }
+  };
 
   const handleSubmit = (values: LoginViewMode) => {
     if (!values || !values.email || !values.password) {
@@ -72,7 +76,7 @@ export const LoginScreen = ({}: LoginScreenProps) => {
 
   useEffect(() => {
     !token && error && handleOpenModal();
-  }, [error])
+  }, [error]);
 
   return (
     <React.Fragment>

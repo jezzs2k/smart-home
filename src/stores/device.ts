@@ -5,6 +5,7 @@ interface PayloadActionType {
   data?: DeviceT[] | null;
   error?: any;
   deviceUploaded?: DeviceT | null;
+  deviceUpdated?: DeviceT | null;
   deviceById?: DeviceT | null;
   deleteSuccess?: boolean;
 }
@@ -20,13 +21,14 @@ const initState: AuthStateReducer = {
   deviceUploaded: null,
   deviceById: null,
   deleteSuccess: false,
+  deviceUpdated: null,
 };
 
 const devicesSlice = createSlice({
-  name: "devices",
+  name: 'devices',
   initialState: initState,
   reducers: {
-    start: (state) => ({ ...state, loading: true }),
+    start: state => ({...state, loading: true}),
     resolves: (state, action: PayloadAction<PayloadActionType>) => ({
       ...state,
       data: action.payload.data,
@@ -45,11 +47,21 @@ const devicesSlice = createSlice({
       loading: false,
       error: null,
     }),
-    deleteDeivece: (state) => ({
+    updateDevice: (state, action: PayloadAction<PayloadActionType>) => ({
+      ...state,
+      loading: false,
+      error: null,
+      deviceUpdated: action.payload.deviceUpdated,
+    }),
+    resetUpdateDevice: state => ({
+      ...state,
+      deviceUpdated: null,
+    }),
+    deleteDeivece: state => ({
       ...state,
       deleteSuccess: true,
     }),
-    resetDeleteDevice: (state) => ({
+    resetDeleteDevice: state => ({
       ...state,
       deleteSuccess: false,
     }),
@@ -59,7 +71,7 @@ const devicesSlice = createSlice({
       loading: false,
       error: null,
     }),
-    resetDevice: (state) => ({
+    resetDevice: state => ({
       ...state,
       deviceById: null,
       deviceUploaded: null,
@@ -74,6 +86,8 @@ export const {
   reject,
   resolves,
   uploadDeviceSuccess,
+  updateDevice,
+  resetUpdateDevice,
   deviceById,
   resetDevice,
   deleteDeivece,

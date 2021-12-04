@@ -95,7 +95,9 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
     if (isSetTurnOn) {
       setTurnOnTime(currentDate);
     } else {
-      if (currentDate.getTime() - turnOnTime.getTime() < 0) {
+      const time1 = currentDate.getTime() - turnOnTime.getTime();
+
+      if (time1 < 0) {
         setTurnOffTime(new Date(turnOnTime.getTime() + 1000 * 60));
       } else {
         setTurnOffTime(currentDate);
@@ -506,7 +508,7 @@ export const AlarmTimes = ({}: AlarmTimesProps) => {
             testID="dateTimePicker"
             value={date}
             mode={'time'}
-            is24Hour={true}
+            is24Hour={false}
             display="default"
             onChange={onChange}
           />

@@ -11,3 +11,4 @@ export * from './FormUploadDevices';
 export * from './DeviceDetailWatt';
 export * from './AlarmTime';
 export * from './Profile';
+export * from './DevicesForm';

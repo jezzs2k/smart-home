@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react';
-import {StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 import {Formik} from 'formik';
 import {NavigationProp, useNavigation} from '@react-navigation/core';
 import {useNetInfo} from '@react-native-community/netinfo';
@@ -17,7 +17,9 @@ import {
 } from '../../components/ModalLoading';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import useModalNotification from '../../Hooks/useModalNotification';
-import { resetDevice } from '../../stores/device';
+import {resetDevice} from '../../stores/device';
+import SelectDropdown from 'react-native-select-dropdown';
+import {IconItemT, ListIcon} from '../../utils/common';
 
 interface FormUploadDeviceProps extends IModalLoadingPassProp {}
 
@@ -43,7 +45,9 @@ export const FormUploadDevice = ModalLoading()(
     >();
     const item = route.params.itemDevice;
     const deviceId = route.params.deviceId;
-
+    const [iconSelector, setIconSelector] = useState<IconItemT | null>(
+      ListIcon[0],
+    );
     const {loading, deviceUploaded, deviceById} = useSelector(
       (state: RootState) => state.device,
     );
@@ -60,6 +64,7 @@ export const FormUploadDevice = ModalLoading()(
           deviceId,
           deviceName: values.deviceName,
           deviceType: 'Thiết bị điện',
+          icon: iconSelector?.index,
         }),
       );
     };
@@ -115,6 +120,41 @@ export const FormUploadDevice = ModalLoading()(
                 errorMess={'Nhập tên thiết bị của bạn'}
                 isError={!values.deviceName}
               />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  paddingVertical: 8,
+                }}>
+                <SelectDropdown
+                  data={ListIcon}
+                  onSelect={(selectedItem: IconItemT, _index: number) => {
+                    setIconSelector(selectedItem);
+                  }}
+                  defaultValue={iconSelector}
+                  buttonStyle={{
+                    borderRadius: 8,
+                    backgroundColor: Colors.BG_INPUT,
+                  }}
+                  buttonTextStyle={{
+                    color: Colors.BLACK,
+                    fontSize: 16,
+                  }}
+                  dropdownStyle={{
+                    borderRadius: 8,
+                  }}
+                  buttonTextAfterSelection={(
+                    selectedItem: any,
+                    _index: number,
+                  ) => {
+                    return selectedItem.title;
+                  }}
+                  rowTextForSelection={(item: any, _index: number) => {
+                    return item.title;
+                  }}
+                />
+                {iconSelector && iconSelector.icon}
+              </View>
               <Button
                 isShowIcon={false}
                 title={'Xác nhận'}

@@ -1,15 +1,16 @@
-import { AxiosResponse } from "axios";
-import { axiosInstance } from "../../utils";
+import {AxiosResponse} from 'axios';
+import {axiosInstance} from '../../utils';
 import {
   reject,
   resolves,
   start,
   uploadDeviceSuccess,
+  updateDevice,
   deviceById,
   deleteDeivece,
-} from "../device";
-import { AppDispatch } from "../stores";
-import { getToken } from "../../config/stores/getToken";
+} from '../device';
+import {AppDispatch} from '../stores';
+import {getToken} from '../../config/stores/getToken';
 
 export interface DeviceT {
   isConnected: boolean;
@@ -22,6 +23,7 @@ export interface DeviceT {
   updatedAt: Date;
   __v: number;
   id: string;
+  icon: number;
 }
 
 export interface CreatedBy {
@@ -42,26 +44,24 @@ export const getDevices = () => async (dispatch: AppDispatch) => {
   const token = await getToken();
   let config = {
     headers: {
-      Authorization: "Bearer " + token,
+      Authorization: 'Bearer ' + token,
     },
   };
 
   dispatch(start());
   try {
     const result: AxiosResponse<DeviceT[]> = await axiosInstance.get(
-      "/devices",
-      config
+      '/devices',
+      config,
     );
 
     if (result) {
-      console.log("result.data ", result.data);
-
-      dispatch(resolves({ data: result.data }));
+      dispatch(resolves({data: result.data}));
     } else {
-      dispatch(reject({ error: "Internal Server" }));
+      dispatch(reject({error: 'Internal Server'}));
     }
   } catch (error) {
-    dispatch(reject({ error: error }));
+    dispatch(reject({error: error}));
   }
 };
 
@@ -70,31 +70,32 @@ export const getDeviceById = (id: string) => async (dispatch: AppDispatch) => {
 
   let config = {
     headers: {
-      Authorization: "Bearer " + token,
+      Authorization: 'Bearer ' + token,
     },
   };
 
   dispatch(start());
   try {
     const result: AxiosResponse<DeviceT> = await axiosInstance.get(
-      "/devices/" + id,
-      config
+      '/devices/' + id,
+      config,
     );
 
     if (result) {
-      dispatch(deviceById({ deviceById: result.data }));
+      dispatch(deviceById({deviceById: result.data}));
     } else {
-      dispatch(reject({ error: "Internal Server" }));
+      dispatch(reject({error: 'Internal Server'}));
     }
   } catch (error) {
-    dispatch(reject({ error: error }));
+    dispatch(reject({error: error}));
   }
 };
 
 export interface DeviceUploadParamsT {
   deviceId: string;
-  deviceName: string;
+  deviceName?: string;
   deviceType?: string;
+  icon?: number;
 }
 
 export const upLoadDevices =
@@ -103,25 +104,57 @@ export const upLoadDevices =
 
     let config = {
       headers: {
-        Authorization: "Bearer " + token,
+        Authorization: 'Bearer ' + token,
       },
     };
 
     dispatch(start());
     try {
+      if (typeof parmas.icon !== 'number') {
+        parmas.icon = 0;
+      }
+
       const result: AxiosResponse<DeviceT> = await axiosInstance.post(
-        "/devices",
+        '/devices',
         parmas,
-        config
+        config,
       );
 
       if (result) {
-        dispatch(uploadDeviceSuccess({ deviceUploaded: result.data }));
+        dispatch(uploadDeviceSuccess({deviceUploaded: result.data}));
       } else {
-        dispatch(reject({ error: "Internal Server" }));
+        dispatch(reject({error: 'Internal Server'}));
       }
     } catch (error) {
-      dispatch(reject({ error: error }));
+      dispatch(reject({error: error}));
+    }
+  };
+
+export const updateDevices =
+  (parmas: DeviceUploadParamsT) => async (dispatch: AppDispatch) => {
+    const token = await getToken();
+
+    let config = {
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+    };
+
+    dispatch(start());
+    try {
+      const result: AxiosResponse<DeviceT> = await axiosInstance.put(
+        '/devices/' + parmas.deviceId,
+        {deviceName: parmas.deviceName, icon: parmas.icon},
+        config,
+      );
+
+      if (result) {
+        dispatch(updateDevice({deviceUpdated: result.data}));
+      } else {
+        dispatch(reject({error: 'Internal Server'}));
+      }
+    } catch (error) {
+      dispatch(reject({error: error}));
     }
   };
 
@@ -131,23 +164,23 @@ export const deleteDevice =
 
     let config = {
       headers: {
-        Authorization: "Bearer " + token,
+        Authorization: 'Bearer ' + token,
       },
     };
 
     dispatch(start());
     try {
       const result: AxiosResponse<DeviceT> = await axiosInstance.delete(
-        "/devices" + "/" + deviceId,
-        config
+        '/devices' + '/' + deviceId,
+        config,
       );
 
       if (result) {
         dispatch(deleteDeivece());
       } else {
-        dispatch(reject({ error: "Internal Server" }));
+        dispatch(reject({error: 'Internal Server'}));
       }
     } catch (error) {
-      dispatch(reject({ error: error }));
+      dispatch(reject({error: error}));
     }
   };

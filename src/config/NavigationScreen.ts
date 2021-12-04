@@ -11,4 +11,5 @@ export enum NavigationScreen {
   FormUploadDevice = 'FormUploadDevice',
   AlarmTimes = 'AlarmTimes',
   Profile = 'Profile',
+  DeviceForm = 'DeviceForm',
 }

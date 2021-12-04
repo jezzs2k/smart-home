@@ -9,8 +9,6 @@ import PushNotification, {Importance} from 'react-native-push-notification';
 import messaging from '@react-native-firebase/messaging';
 import {useNetInfo} from '@react-native-community/netinfo';
 
-import {DeviceForm} from '../DevicesForm';
-
 import {Button, DeviceComponent, ScreenDefault} from '../../components';
 import {Colors} from '../../config';
 import {ModalLoading} from '../../components/ModalLoading';
@@ -19,6 +17,7 @@ import {RootState, useAppDispatch} from '../../stores/stores';
 import {NavigationScreen} from '../../config/NavigationScreen';
 import {DeviceT, getDevices} from '../../stores/factories/device';
 import {updateUsers} from '../../stores/factories/user';
+import {ListIcon} from '../../utils/common';
 interface HomeProps {
   loading: boolean;
 
@@ -156,6 +155,16 @@ export const HomeScreen = ModalLoading()(
       return null;
     }
 
+    const findIcon = (index: number) =>
+      ListIcon.find(item => item.index === index);
+
+    const handleDeleteDevice = () => {
+      onSetLoading();
+      setTimeout(() => {
+        dispatch(getDevices());
+      }, 200);
+    };
+
     const renderItem = ({item}: {item: DeviceT}) => {
       if (!item.isConnected) {
         return null;
@@ -163,16 +172,18 @@ export const HomeScreen = ModalLoading()(
       return (
         <DeviceComponent
           isTurnOn={item.isTurnOn}
+          ICON={findIcon(item.icon || 0)?.icon}
           title={item.deviceName}
           onPress={() => {
             navigation.navigate(NavigationScreen.DeviceDetails, {item});
           }}
           keyItem={item.id}
+          isShowDevice1={true}
+          item={item}
+          onDeleteDevice={handleDeleteDevice}
         />
       );
     };
-
-    // return <DeviceForm />;
 
     if (handleCheckData(data)) {
       return (
@@ -182,7 +193,6 @@ export const HomeScreen = ModalLoading()(
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
-            numColumns={3}
             keyExtractor={item => item.id}
           />
         </View>

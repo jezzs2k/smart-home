@@ -25,6 +25,7 @@ import {
   DeviceDetailsWatt,
   AlarmTimes,
   Profile,
+  DeviceForm,
 } from '../screens';
 import {Colors} from '../config';
 import {Button} from '../components';
@@ -46,6 +47,7 @@ type HomeStackParamList = {
   DeviceDetailsWatt: undefined;
   AlarmTimes: undefined;
   Profile: undefined;
+  DeviceForm: undefined;
 };
 
 type SmartStackParamList = {
@@ -236,6 +238,22 @@ function HomeStackScreen() {
                 justifyContent: 'center',
               }}>
               <Text style={{textAlign: 'center'}}>Thông tin tài khoản</Text>
+            </View>
+          ),
+        })}
+      />
+      <HomeStack.Screen
+        name={NavigationScreen.DeviceForm}
+        component={DeviceForm}
+        options={StackScreenOptions({
+          title: NavigationScreen.DeviceForm,
+          renderHeader: ({route, navigation}) => (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{textAlign: 'center'}}>Sửa thiết bị</Text>
             </View>
           ),
         })}
